@@ -113,7 +113,7 @@ export default function StylizedCityGlobe() {
         backgroundColor="#050505"
         globeMaterial={new THREE.MeshPhongMaterial({ color: "#111827", emissive: "#000000", shininess: 0.7 })}
         showAtmosphere={true}
-        atmosphereColor="#38bdf8"
+        atmosphereColor="rgb(50,50,155,0.2)"
         atmosphereAltitude={0.15}
         onGlobeReady={() => { if (globeEl.current) { globeEl.current.pointOfView({ lat: 25, lng: 35, altitude: 2.5 }); resumeRotation(); }}}
         polygonsData={countries.features}

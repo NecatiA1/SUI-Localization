@@ -1,65 +1,15 @@
-// store/useGlobalStore.js
 import { create } from 'zustand';
 
-// --- MOCK DATABASE (İleride burası API olacak) ---
-const REAL_CITIES = [
-  { id: 1, name: "Istanbul", region: "Turkey", code: "IST", transactions: 9420, score: 750, lat: 41.0082, lng: 28.9784 },
-  { id: 2, name: "New York", region: "USA", code: "NYC", transactions: 15200, score: 680, lat: 40.7128, lng: -74.0060 },
-  { id: 3, name: "Tokyo", region: "Japan", code: "TKY", transactions: 12800, score: 890, lat: 35.6762, lng: 139.6503 },
-  { id: 4, name: "London", region: "UK", code: "LDN", transactions: 10500, score: 420, lat: 51.5074, lng: -0.1278 },
-  { id: 5, name: "Berlin", region: "Germany", code: "BER", transactions: 6300, score: 550, lat: 52.5200, lng: 13.4050 },
-  { id: 6, name: "Singapore", region: "Singapore", code: "SIN", transactions: 8900, score: 780, lat: 1.3521, lng: 103.8198 },
-  { id: 7, name: "Sydney", region: "Australia", code: "SYD", transactions: 4200, score: 910, lat: -33.8688, lng: 151.2093 },
-  { id: 8, name: "Dubai", region: "UAE", code: "DXB", transactions: 11000, score: 600, lat: 25.2048, lng: 55.2708 },
-];
+// 1. API BASE URL
+const BASE_URL = 'http://localhost:4000/v1';
 
-// --- DATA GENERATORS (API Cevaplarını Simüle Eder) ---
-const mockUsers = (cityId) => Array.from({ length: 8 }).map((_, i) => ({
-    id: `${cityId}-U${i}`,
-    name: `User-${Math.floor(Math.random() * 1000)}`,
-    address: `0x${Math.random().toString(16).substr(2, 8)}...`,
-    txCount: Math.floor(Math.random() * 500),
-    volume: (Math.random() * 10).toFixed(2),
-    status: Math.random() > 0.8 ? "Risky" : "Safe",
-    score: Math.floor(Math.random() * 100)
-}));
 
-const mockCommunities = (cityId) => Array.from({ length: 6 }).map((_, i) => ({
-    id: `${cityId}-C${i}`,
-    name: `Cluster Alpha-${i + 1}`,
-    website: "https://example.com",
-    description: "A decentralized collective focused on verifying high-value transactions.",
-    members: Math.floor(Math.random() * 5000),
-    totalVolume: Math.floor(Math.random() * 1000000),
-    txCount: Math.floor(Math.random() * 20000)
-}));
-
-const mockTransactions = (userId) => Array.from({ length: 5 }).map((_, i) => ({
-    id: `tx-${i}`,
-    hash: `0x${Math.random().toString(16).substr(2, 12)}...`,
-    amount: (Math.random() * 5).toFixed(4),
-    time: `${Math.floor(Math.random() * 24)}h ago`,
-    status: "Success"
-}));
-
-const mockCompanyStats = () => {
-    const shuffled = [...REAL_CITIES].sort(() => 0.5 - Math.random());
-    return shuffled.slice(0, 4).map(city => ({
-        cityId: city.id,
-        cityName: city.name,
-        region: city.region,
-        volume: (Math.random() * 50000).toFixed(0),
-        txCount: Math.floor(Math.random() * 1200)
-    }));
-};
-
-// --- STORE ---
 const useGlobalStore = create((set, get) => ({
-  // State
+  // --- STATE ---
   cities: [],
   selectedCity: null,
-  cityUsers: [],
-  cityCommunities: [],
+  cityUsers: [],       
+  cityCommunities: [], 
   
   selectedUser: null,
   userTransactions: [],
@@ -68,74 +18,97 @@ const useGlobalStore = create((set, get) => ({
   communityStats: [],
 
   isLoading: false,
+  error: null,
 
-  // Actions (Async yapı kuruyoruz ki backend'e geçiş kolay olsun)
-  
-  // 1. Şehirleri Getir
+  // --- ACTIONS ---
+
+  // 1. TÜM ŞEHİRLERİ GETİR
   fetchCities: async () => {
-    set({ isLoading: true });
-    // BACKEND: const res = await fetch('/api/cities'); const data = await res.json();
-    setTimeout(() => {
-        set({ cities: REAL_CITIES, isLoading: false });
-    }, 500); // 0.5sn gecikme simülasyonu
+    set({ isLoading: true, error: null });
+    try {
+      const response = await fetch(`${BASE_URL}/map/cities`);
+      if (!response.ok) throw new Error('Şehir verileri alınamadı.');
+      
+      const jsonResponse = await response.json();
+
+      const processedCities = jsonResponse.data.map(city => ({
+        ...city,
+        lat: city.lat || 0,
+        lng: city.lng || 0,
+        score: city.score || 0,
+      }));
+
+      set({ cities: processedCities, isLoading: false });
+    } catch (err) {
+      console.error("API Error:", err);
+      set({ error: err.message, isLoading: false });
+    }
   },
 
-  // 2. Şehir Seçilince Detayları Getir
+  // 2. ŞEHİR DETAYINI VE İÇERİĞİNİ GETİR (DİNAMİK ID İLE)
   selectCity: async (city) => {
+    // Eğer seçim kaldırıldıysa (null geldiyse) temizle ve çık
     if (!city) {
-        set({ selectedCity: null, cityUsers: [], cityCommunities: [] });
-        return;
+      set({ selectedCity: null, cityUsers: [], cityCommunities: [] });
+      return;
     }
-    set({ selectedCity: city, isLoading: true });
-    
-    // BACKEND: Fetch users & communities by city.id
-    setTimeout(() => {
-        set({
-            cityUsers: mockUsers(city.id),
-            cityCommunities: mockCommunities(city.id),
-            isLoading: false
-        });
-    }, 300);
+
+    // Seçili şehri state'e at ve loading başlat
+    set({ selectedCity: city, isLoading: true, error: null });
+
+    try {
+      // --- DİNAMİK URL OLUŞTURMA ---
+      // Seçenek A (Standart): http://localhost:4000/v1/map/cities/1
+      const url = `${BASE_URL}/map/cities/${city.id}`;
+      
+      // Seçenek B (Senin örneğin): http://localhost:4000/1
+      // const url = `http://localhost:4000/${city.id}`; 
+
+      console.log("İstek atılan dinamik URL:", url);
+
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`Şehir detayları alınamadı: ${response.status}`);
+      }
+
+      const jsonResponse = await response.json();
+      
+      // Backend'den dönen verinin yapısına göre burayı ayarlıyoruz.
+      // ÖRNEK SENARYO: Dönen veride "users" ve "communities" dizileri varsa:
+      /*
+        Gelen veri örneği:
+        {
+          success: true,
+          data: {
+             ...cityDetails,
+             users: [...],
+             communities: [...]
+          }
+        }
+      */
+     
+      const details = jsonResponse.data || {};
+
+      set({ 
+        // Eğer backend ayrı ayrı array dönüyorsa:
+        cityUsers: details.users || [], 
+        cityCommunities: details.communities || [],
+        isLoading: false 
+      });
+
+    } catch (err) {
+      console.error("City Detail Error:", err);
+      set({ error: err.message, isLoading: false });
+    }
   },
 
-  // 3. Kullanıcı Seçilince İşlemleri Getir
-  selectUser: async (user) => {
-    if (!user) {
-        set({ selectedUser: null, userTransactions: [] });
-        return;
-    }
-    set({ selectedUser: user, isLoading: true });
+  selectUser: (user) => set({ selectedUser: user }),
+  selectCommunity: (community) => set({ selectedCommunity: community }),
 
-    // BACKEND: Fetch transactions by user.id
-    setTimeout(() => {
-        set({
-            userTransactions: mockTransactions(user.id),
-            isLoading: false
-        });
-    }, 300);
-  },
-
-  // 4. Şirket Seçilince İstatistikleri Getir
-  selectCommunity: async (community) => {
-    if (!community) {
-        set({ selectedCommunity: null, communityStats: [] });
-        return;
-    }
-    set({ selectedCommunity: community, isLoading: true });
-
-    // BACKEND: Fetch stats by community.id
-    setTimeout(() => {
-        set({
-            communityStats: mockCompanyStats(),
-            isLoading: false
-        });
-    }, 300);
-  },
-
-  // Yardımcı: Modal Kapatma Resetleri
   closeCityModal: () => get().selectCity(null),
-  closeUserModal: () => get().selectUser(null),
-  closeCommunityModal: () => get().selectCommunity(null),
+  closeUserModal: () => set({ selectedUser: null }),
+  closeCommunityModal: () => set({ selectedCommunity: null }),
 }));
 
 export default useGlobalStore;
