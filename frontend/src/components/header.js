@@ -67,7 +67,7 @@ export default function Header() {
 
   const navLinks = [
     { href: "/localization", label: "Localization Map", icon: <FaEarthAmericas size={20} /> },
-    { href: "/", label: "Documentation", icon: <IoDocumentTextOutline size={22} /> },
+    { href: "/documentation", label: "Documantacion", icon: <IoDocumentTextOutline size={22} /> },
   ];
 
   return (
