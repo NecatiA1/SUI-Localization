@@ -18,6 +18,13 @@ const router = express.Router();
  */
 router.post("/start", async (req, res) => {
   try {
+    const { apiId, apiKey } = req.body;
+
+    const app = await validateAppCredentials(apiId, apiKey);
+    if (!app) {
+      return res.status(401).json({ error: "Geçersiz apiId veya apiKey" });
+    }
+
     const { userAddress, cityName, countryCode, meta } = req.body || {};
 
     // 1) Basit validasyonlar
@@ -35,10 +42,10 @@ router.post("/start", async (req, res) => {
 
     // 3) geo_tx kaydı oluştur
     const insertResult = await pool.query(
-      `INSERT INTO geo_tx (user_address, city_id, status, meta)
-       VALUES ($1, $2, 'PENDING', $3)
+      `INSERT INTO geo_tx (user_address, city_id, status, meta, app_db_id)
+       VALUES ($1, $2, 'PENDING', $3, $4)
        RETURNING id, created_at`,
-      [userAddress, cityId, meta || null]
+      [userAddress, cityId, meta || null, app.id]
     );
 
     const row = insertResult.rows[0];
@@ -69,6 +76,14 @@ router.post("/start", async (req, res) => {
  */
 router.post("/confirm", async (req, res) => {
   try {
+
+    const { apiId, apiKey } = req.body;
+
+    const app = await validateAppCredentials(apiId, apiKey);
+    if (!app) {
+      return res.status(401).json({ error: "Geçersiz apiId veya apiKey" });
+    }
+
     const { geoTxId, txDigest, amountSui } = req.body || {};
 
     if (!geoTxId || !txDigest || amountSui === undefined) {
@@ -86,12 +101,12 @@ router.post("/confirm", async (req, res) => {
 
     // 1) İlgili geo_tx kaydını bul
     const existing = await pool.query(
-      "SELECT id, status, user_address, city_id FROM geo_tx WHERE id = $1 LIMIT 1",
-      [geoTxId]
+      "SELECT id, status, user_address, city_id, app_db_id FROM geo_tx WHERE id = $1 AND app_db_id = $2",
+      [geoTxId, app.id]
     );
 
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: "Geo transaction bulunamadı." });
+      return res.status(404).json({ error: "Bu transaction bu API'ye ait değil." });
     }
 
     const current = existing.rows[0];

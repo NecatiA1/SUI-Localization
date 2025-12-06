@@ -23,6 +23,26 @@ function generateApiKey() {
  * Yoksa:
  *   -> Yeni app_id & api_key üretir, DB'ye yazar, döner
  */
+
+export async function validateAppCredentials(apiId, apiKey) {
+  const check = await pool.query(
+    `
+    SELECT id, app_id, api_key, name, domain
+    FROM apps
+    WHERE app_id = $1 AND api_key = $2
+    LIMIT 1
+    `,
+    [apiId, apiKey]
+  );
+
+  if (check.rows.length === 0) {
+    return null; // invalid
+  }
+
+  return check.rows[0]; // valid app
+}
+
+
 export async function registerOrGetApp({ name, domain, description }) {
   // 1) Önce domain normalize edebilirsin (şimdilik raw kalsın)
   const normalizedDomain = domain.trim();
