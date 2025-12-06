@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 14, "column": 0}, "map": {"version":3,"sources":["file:///C:/Users/Hp/Desktop/localization/src/app/worldPin/page.js"],"sourcesContent":["export default function WorldPinPage() {\r\n  return (\r\n    <main style={{ padding: \"2rem\" }}>\r\n      <h1>World Pin Page</h1>\r\n      <p>This is the world pin page.</p>\r\n    </main>\r\n  );\r\n}\r\n"],"names":[],"mappings":";;;;;;AAAe,SAAS;IACtB,qBACE,8OAAC;QAAK,OAAO;YAAE,SAAS;QAAO;;0BAC7B,8OAAC;0BAAG;;;;;;0BACJ,8OAAC;0BAAE;;;;;;;;;;;;AAGT"}}]
+}
