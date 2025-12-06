@@ -1,8 +1,17 @@
+import StylizedGlobe from "@/components/StylizedGlobe";
+
 export default function LocalizationPage() {
   return (
-    <main style={{ padding: "2rem" }}>
-      <h1>Localization Page</h1>
-      <p>This is the world pin page.</p>
+    <main className="flex">
+      {/* Sol taraf: Globe */}
+      <div className="w-1/2 h-[50vh]">
+        <StylizedGlobe />
+      </div>
+
+      {/* Sağ taraf: İleride ekleyeceğin panel / tablo vs. */}
+      <div className="w-1/2 h-[50vh]">
+        {/* buraya sağ taraftaki içerik gelecek */}
+      </div>
     </main>
   );
 }
