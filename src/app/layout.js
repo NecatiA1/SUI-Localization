@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import Header from "../components/header";
 
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -21,17 +20,23 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className="bg-gray-100">
-        
+      <body
+        className={`
+          ${geistSans.variable} 
+          ${geistMono.variable} 
+          bg-gray-100 
+          min-h-screen 
+          flex 
+          flex-col
+        `}
+      >
         <Header />
 
-        <main className="min-h-screen px-6 py-6">
+        {/* Kalan alanı dolduran içerik */}
+        <main className="flex-1 px-6 py-6">
           {children}
         </main>
-
       </body>
     </html>
   );
 }
-
-
