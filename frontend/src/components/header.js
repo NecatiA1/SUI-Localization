@@ -71,9 +71,9 @@ export default function Header() {
     setIsSearchFocused(false); // Dropdown'ı kapat
     setSearchQuery(city.name); // Inputa ismini yaz (opsiyonel)
   };
-
+//b
   return (
-    <header className="relative w-full bg-linear-to-r from-black via-[rgb(26,6,81)] to-black text-white py-3 overflow-visible z-20">
+    <header className="relative w-full bg-linear-to-r from-black/50 via-[rgb(26,6,81,0.4)] to-black/50 border-b border-gray-500 text-white py-3 overflow-visible z-20">
       <nav className="relative max-w-7xl mx-auto px-4 flex items-center justify-between">
         
         {/* --- Logo / Brand --- */}
