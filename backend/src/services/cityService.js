@@ -7,6 +7,26 @@ import pool from "../db/pool.js";
  * countryCode: 'TR'
  * regionName:  optional, şimdilik boş geçebiliriz
  */
+export async function resolveCityFromCoords({ lat, lon }) {
+  // TODO: Hackathon sonrası: gerçek bir geocoding servisine bağla
+  // (OpenStreetMap / Nominatim / Mapbox / Google vs.)
+
+  // Şimdilik: lat/lon'u 'virtual city' ismine çeviren basit bir placeholder:
+  const roundedLat = Math.round(lat * 100) / 100;
+  const roundedLon = Math.round(lon * 100) / 100;
+
+  const name = `City ${roundedLat}, ${roundedLon}`;
+  const countryCode = "UN"; // Unknown
+
+  const cityId = await findOrCreateCity({
+    name,
+    countryCode,
+  });
+
+  return { cityId, name, countryCode };
+}
+
+
 export async function findOrCreateCity({ name, countryCode, regionName = null }) {
   // 1) Önce var mı diye kontrol et
   const existing = await pool.query(

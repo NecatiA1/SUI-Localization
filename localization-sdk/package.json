@@ -1,0 +1,21 @@
+{
+  "name": "localization-sui-sdk",
+  "version": "0.1.2",
+  "description": "Localization protocol SDK for Sui dapps",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "scripts": {
+    "test": "echo \"no tests yet\""
+  },
+  "keywords": [
+    "localization",
+    "sui",
+    "sdk",
+    "web3"
+  ],
+  "author": "Ahmet",
+  "license": "MIT"
+}
