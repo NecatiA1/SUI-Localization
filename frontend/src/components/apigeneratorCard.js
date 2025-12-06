@@ -34,7 +34,7 @@ export default function ApiGeneratorCard() {
 
     try {
       // 2. Değişiklik: Endpoint'e gönderilen veri yapısı güncellendi
-      const res = await fetch("/api/create-api", {
+      const res = await fetch("http://localhost:4000/v1/apps/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
