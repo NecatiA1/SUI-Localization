@@ -2,9 +2,10 @@
 
 import express from "express";
 import pool from "../db/pool.js";
-import { findOrCreateCity } from "../services/cityService.js";
+import { findOrCreateCity,resolveCityFromCoords  } from "../services/cityService.js";
 import { applyScoreForConfirmedTx } from "../services/scoreService.js";
-
+import { getSuiAmountFromTxDigest } from "../services/suiService.js";
+import { validateAppCredentials } from "../services/appService.js";
 const router = express.Router();
 
 /**
@@ -18,29 +19,57 @@ const router = express.Router();
  */
 router.post("/start", async (req, res) => {
   try {
-    const { apiId, apiKey } = req.body;
+    console.log("💥 /v1/geo/start body:", req.body);
 
+    const {
+      apiId,
+      apiKey,
+      userAddress,
+      cityName,
+      countryCode,
+      lat,
+      lon,
+      meta,
+    } = req.body || {};
+
+    // 1) API kimlik kontrolü
     const app = await validateAppCredentials(apiId, apiKey);
     if (!app) {
-      return res.status(401).json({ error: "Geçersiz apiId veya apiKey" });
+      return res.status(401).json({ error: "Invalid apiId or apiKey" });
     }
 
-    const { userAddress, cityName, countryCode, meta } = req.body || {};
-
-    // 1) Basit validasyonlar
-    if (!userAddress || !cityName || !countryCode) {
+    if (!userAddress) {
       return res.status(400).json({
-        error: "userAddress, cityName ve countryCode zorunludur.",
+        error: "userAddress is required.",
       });
     }
 
-    // 2) Şehri bul ya da oluştur
-    const cityId = await findOrCreateCity({
-      name: cityName,
-      countryCode,
-    });
+    let cityId;
+    let finalCityName;
+    let finalCountryCode;
 
-    // 3) geo_tx kaydı oluştur
+    // 2) Şehir belirleme
+    if (typeof lat === "number" && typeof lon === "number") {
+      // a) Koordinattan şehir çözüyoruz
+      const resolved = await resolveCityFromCoords({ lat, lon });
+      cityId = resolved.cityId;
+      finalCityName = resolved.name;
+      finalCountryCode = resolved.countryCode;
+    } else if (cityName && countryCode) {
+      // b) Eski yöntem: doğrudan şehir adı
+      cityId = await findOrCreateCity({
+        name: cityName,
+        countryCode,
+      });
+      finalCityName = cityName;
+      finalCountryCode = countryCode;
+    } else {
+      return res.status(400).json({
+        error: "Either (cityName + countryCode) or (lat + lon) must be provided.",
+      });
+    }
+
+    // 3) geo_tx kaydı
     const insertResult = await pool.query(
       `INSERT INTO geo_tx (user_address, city_id, status, meta, app_db_id)
        VALUES ($1, $2, 'PENDING', $3, $4)
@@ -55,14 +84,15 @@ router.post("/start", async (req, res) => {
       createdAt: row.created_at,
       city: {
         id: cityId,
-        name: cityName,
-        countryCode,
+        name: finalCityName,
+        countryCode: finalCountryCode,
       },
     });
   } catch (err) {
-    console.error("POST /v1/geo/start hata:", err);
+    console.error("POST /v1/geo/start error:", err);
     return res.status(500).json({
-      error: "Bir hata oluştu, start işlemi tamamlanamadı.",
+      error: "Failed to create geo transaction.",
+      debug: err.message,
     });
   }
 });
@@ -76,63 +106,73 @@ router.post("/start", async (req, res) => {
  */
 router.post("/confirm", async (req, res) => {
   try {
+    const { apiId, apiKey, geoTxId, txDigest } = req.body || {};
 
-    const { apiId, apiKey } = req.body;
-
+    // 1) API auth
     const app = await validateAppCredentials(apiId, apiKey);
     if (!app) {
-      return res.status(401).json({ error: "Geçersiz apiId veya apiKey" });
+      return res.status(401).json({ error: "Invalid apiId or apiKey" });
     }
 
-    const { geoTxId, txDigest, amountSui } = req.body || {};
-
-    if (!geoTxId || !txDigest || amountSui === undefined) {
-      return res.status(400).json({
-        error: "geoTxId, txDigest ve amountSui zorunludur.",
-      });
+    if (!geoTxId || !txDigest) {
+      return res
+        .status(400)
+        .json({ error: "geoTxId and txDigest are required." });
     }
 
-    const numericAmount = Number(amountSui);
-    if (!numericAmount || isNaN(numericAmount) || numericAmount <= 0) {
-      return res.status(400).json({
-        error: "amountSui pozitif bir sayı olmalıdır.",
-      });
-    }
-
-    // 1) İlgili geo_tx kaydını bul
+    // 2) Bu geo_tx gerçekten bu app'e mi ait?
     const existing = await pool.query(
-      "SELECT id, status, user_address, city_id, app_db_id FROM geo_tx WHERE id = $1 AND app_db_id = $2",
+      `
+      SELECT id, status, user_address, city_id, app_db_id
+      FROM geo_tx
+      WHERE id = $1 AND app_db_id = $2
+      LIMIT 1
+      `,
       [geoTxId, app.id]
     );
 
     if (existing.rows.length === 0) {
-      return res.status(404).json({ error: "Bu transaction bu API'ye ait değil." });
+      return res
+        .status(404)
+        .json({ error: "Geo transaction not found for this app." });
     }
 
     const current = existing.rows[0];
 
-    // İstersen status kontrolü yapabilirsin (örn. sadece PENDING ise izin ver)
-    // Biz şimdilik çok sıkı davranmayalım.
+    // 3) Sui ağından amount'ı çek
+    const amountSui = await getSuiAmountFromTxDigest(txDigest);
 
-    // 2) geo_tx kaydını CONFIRMED yap, amount_sui ve tx_score'ı yaz
+    if (!amountSui || Number.isNaN(amountSui) || amountSui <= 0) {
+      // İstersen burada CONFIRMED yerine FAILED/INVALID gibi status da verebilirsin
+      console.warn(
+        "No positive SUI amount found, txDigest:",
+        txDigest,
+        "amount:",
+        amountSui
+      );
+    }
+
+    const txScore = amountSui; // şimdilik score = amount
+
+    // 4) geo_tx kaydını güncelle
     const updateResult = await pool.query(
       `
       UPDATE geo_tx
       SET
         tx_digest    = $1,
         amount_sui   = $2,
-        tx_score     = $2,
+        tx_score     = $3,
         status       = 'CONFIRMED',
         confirmed_at = NOW()
-      WHERE id = $3
+      WHERE id = $4
       RETURNING id, user_address, city_id, tx_score, status, confirmed_at
       `,
-      [txDigest, numericAmount, geoTxId]
+      [txDigest, amountSui, txScore, geoTxId]
     );
 
     const updated = updateResult.rows[0];
 
-    // 3) Skoru address_city_stats ve city_stats tablolarına uygula
+    // 5) Skoru istatistik tablolarına uygula
     await applyScoreForConfirmedTx({
       userAddress: updated.user_address,
       cityId: updated.city_id,
@@ -143,13 +183,14 @@ router.post("/confirm", async (req, res) => {
       geoTxId: updated.id,
       status: updated.status,
       txScore: updated.tx_score,
+      amountSui: amountSui,
       confirmedAt: updated.confirmed_at,
     });
   } catch (err) {
-    console.error("POST /v1/geo/confirm hata:", err);
+    console.error("POST /v1/geo/confirm error:", err);
     return res.status(500).json({
-      error: "Bir hata oluştu, confirm işlemi tamamlanamadı.",
-      debug: err.message, // dev için bırak, sonra kaldırırsın
+      error: "Confirm failed.",
+      debug: err.message,
     });
   }
 });
