@@ -1,0 +1,262 @@
+[00:00:06.116] Server  LOG      ✓ Ready in 3.8s
+[00:00:10.695] Server  LOG      ○ Compiling / ...
+[00:00:16.866] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:03:35.712] Server  LOG      ✓ Compiled in 143ms
+[00:03:36.584] Browser ERROR   Each child in a list should have a unique "key" prop.%s%s See https://react.dev/link/warning-keys for more information. 
+
+Check the render method of `Header`. 
+[00:05:01.519] Server  LOG      ✓ Compiled in 115ms
+[00:05:25.210] Server  LOG      ✓ Compiled in 155ms
+[00:06:48.789] Server  LOG      ✓ Compiled in 67ms
+[00:07:00.961] Server  LOG      ✓ Compiled in 67ms
+[00:10:14.772] Server  LOG      ✓ Compiled in 47ms
+[00:11:04.172] Server  LOG      ✓ Compiled in 90ms
+[00:11:22.154] Server  LOG      ✓ Compiled in 203ms
+[00:11:50.305] Server  LOG      ✓ Compiled in 277ms
+[00:12:11.477] Server  LOG      ✓ Compiled in 262ms
+[00:12:16.459] Server  LOG      ✓ Compiled in 209ms
+[00:12:20.541] Server  LOG      ✓ Compiled in 104ms
+[00:12:31.883] Server  LOG      ✓ Compiled in 111ms
+[00:12:44.131] Server  LOG      ✓ Compiled in 74ms
+[00:12:58.080] Server  LOG      ✓ Compiled in 193ms
+[00:13:04.628] Server  LOG      ✓ Compiled in 88ms
+[00:13:13.640] Server  LOG      ✓ Compiled in 120ms
+[00:13:26.828] Server  LOG      ✓ Compiled in 67ms
+[00:14:28.768] Server  LOG      ✓ Compiled in 1106ms
+[00:14:36.990] Server  LOG      ✓ Compiled in 88ms
+[00:15:23.127] Server  LOG      ✓ Compiled in 1983ms
+[00:16:10.816] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:16:45.241] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:03.754] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:17:32.105] Server  LOG      ✓ Compiled in 154ms
+[00:17:32.703] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:08.432] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:09.457] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:11.750] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:12.510] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:13.923] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:15.759] Browser INFO    %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold
+[00:18:46.892] Server  LOG      ✓ Compiled in 59ms
+[00:30:25.751] Server  LOG      ✓ Compiled in 2.6s
+[00:30:27.667] Browser WARN    Image with src "/logo.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[00:30:38.599] Server  LOG      ✓ Compiled in 122ms
+[00:44:24.666] Server  LOG      ✓ Compiled in 303ms
+[00:44:33.695] Server  LOG      ✓ Compiled in 92ms
+[00:44:54.111] Server  LOG      ✓ Compiled in 94ms
+[00:46:58.466] Server  LOG      ✓ Compiled in 2.5s
+[00:46:58.548] Browser ERROR   ./src/components/header.js
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/src/components/header.js [app-client] (ecmascript)
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: https://framer.com/m/LiquidMetal-7nNZ.js@NbxdDP6uG73LOOi54hYX)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/src/components/header.js [app-client] (ecmascript)
+- Execution of <ModuleChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: https://framer.com/m/LiquidMetal-7nNZ.js@NbxdDP6uG73LOOi54hYX)
+
+Import trace:
+  Server Component:
+    ./src/components/header.js
+    ./src/app/layout.js
+[00:47:24.006] Browser ERROR   ./src/components/header.js
+Code generation for chunk item errored
+An error occurred while generating the chunk item [project]/src/components/header.js [app-client] (ecmascript)
+
+Caused by:
+- the chunking context (unknown) does not support external modules (request: https://framer.com/m/LiquidMetal-7nNZ.js@NbxdDP6uG73LOOi54hYX)
+
+Debug info:
+- An error occurred while generating the chunk item [project]/src/components/header.js [app-client] (ecmascript)
+- Execution of <ModuleChunkItem as EcmascriptChunkItem>::content_with_async_module_info failed
+- Execution of *EcmascriptChunkItemContent::new failed
+- Execution of EcmascriptModuleContent::new failed
+- the chunking context (unknown) does not support external modules (request: https://framer.com/m/LiquidMetal-7nNZ.js@NbxdDP6uG73LOOi54hYX)
+
+Import trace:
+  Server Component:
+    ./src/components/header.js
+    ./src/app/layout.js
+[00:50:32.673] Server  LOG      ✓ Compiled in 139ms
+[00:51:00.940] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:00.948] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:00.950] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:00.954] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:00.956] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:00.958] Server  ERROR    ⨯ ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+
+https://nextjs.org/docs/messages/module-not-found
+
+
+[00:51:01.069] Server  LOG      ✓ Compiled in 4.6s
+[00:51:25.742] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:25.743] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.602] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.602] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.602] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve '../components/header'
+
+https://nextjs.org/docs/messages/module-not-found
+[00:51:28.603] Browser ERROR   ./src/app/layout.js
+Module not found: Can't resolve './globals.css'
+
+https://nextjs.org/docs/messages/module-not-found
