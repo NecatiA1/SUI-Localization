@@ -15,6 +15,12 @@ export default function ApiGeneratorCard() {
   const [error, setError] = useState("");
   const [copiedField, setCopiedField] = useState("");
 
+  const maskKey = (key) => {
+  if (!key) return "";
+  return key.slice(0, 10) + "*".repeat(key.length - 10);
+};
+
+
   const handleCopy = async (text, field) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -44,6 +50,7 @@ export default function ApiGeneratorCard() {
         }),
       });
 
+    
       const data = await res.json();
 
       if (!res.ok) {
@@ -190,26 +197,27 @@ export default function ApiGeneratorCard() {
             </div>
 
             {/* API Key Gösterimi */}
-            <div className="flex flex-col gap-1.5">
-              <span className="text-xs text-zinc-500 uppercase tracking-wide">
-                API Key
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="flex-1 font-mono text-xs sm:text-[13px] text-zinc-100 break-all bg-zinc-900/70 rounded-md px-3 py-2">
-                  {apiData.apiKey}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => handleCopy(apiData.apiKey, "apiKey")}
-                  className="inline-flex items-center gap-1 rounded-md border border-zinc-700/80 
-                    bg-zinc-900/70 px-3 py-1.5 text-[11px] font-medium text-zinc-100 
-                    hover:bg-zinc-800/80 transition-all"
-                >
-                  <FiCopy className="text-xs" />
-                  {copiedField === "apiKey" ? "Kopyalandı" : "Kopyala"}
-                </button>
-              </div>
-            </div>
+<div className="flex flex-col gap-1.5">
+  <span className="text-xs text-zinc-500 uppercase tracking-wide">
+    API Key
+  </span>
+  <div className="flex items-center gap-2">
+    <span className="flex-1 font-mono text-xs sm:text-[13px] text-zinc-100 break-all bg-zinc-900/70 rounded-md px-3 py-2">
+      {maskKey(apiData.apiKey)}
+    </span>
+    <button
+      type="button"
+      onClick={() => handleCopy(apiData.apiKey, "apiKey")}
+      className="inline-flex items-center gap-1 rounded-md border border-zinc-700/80 
+        bg-zinc-900/70 px-3 py-1.5 text-[11px] font-medium text-zinc-100 
+        hover:bg-zinc-800/80 transition-all"
+    >
+      <FiCopy className="text-xs" />
+      {copiedField === "apiKey" ? "Kopyalandı" : "Kopyala"}
+    </button>
+  </div>
+</div>
+
 
           </div>
         </div>

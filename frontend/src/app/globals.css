@@ -1,14 +1,1 @@
 @import "tailwindcss";
-
-.hard-gradient {
-  background: linear-gradient(
-    135deg,
-    rgb(55, 0, 100),       /* neon purple */
-    rgb(90, 0, 170) 65%,   /* violet mixed with electric blue */
-    rgb(0, 55, 120) 65%,   /* vivid deep blue */
-    rgb(0, 0, 0) 100%      /* black */
-  );
-  background-repeat: no-repeat;
-  background-size: cover;
-  min-height: 100vh;
-}

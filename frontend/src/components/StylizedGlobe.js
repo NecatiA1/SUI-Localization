@@ -149,7 +149,7 @@ export default function StylizedCityGlobe() {
 
   return (
     <div 
-        className="w-full h-screen relative bg-black overflow-hidden font-sans text-white"
+        className="w-full h-[calc(100vh-70px)] relative bg-black overflow-hidden font-sans text-white"
         onMouseMove={(e) => {
             if(tooltip.visible) {
                 setTooltip(prev => ({ ...prev, x: e.clientX, y: e.clientY }));
@@ -181,7 +181,7 @@ export default function StylizedCityGlobe() {
         onLabelHover={handleHover}
         pointsData={REAL_CITIES}
         pointColor={() => "#ffffff"}
-        pointRadius={0.35} 
+        pointRadius={0.15} 
         pointAltitude={0.04}
         pointLabel={() => ""}
         onPointClick={handlePointClick}

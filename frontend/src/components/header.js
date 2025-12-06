@@ -10,7 +10,6 @@ import { MdOutlineSportsScore } from "react-icons/md";
 // İkon paketleri düzeltildi (fa6 ve fa ayrımı)
 import { FaEarthAmericas } from "react-icons/fa6"; 
 import { FaSearch } from "react-icons/fa";
-import { RiFlashlightLine } from "react-icons/ri";
 import { IoDocumentTextOutline } from "react-icons/io5";
 
 const STAR_COUNT = 30;
@@ -68,7 +67,6 @@ export default function Header() {
 
   const navLinks = [
     { href: "/localization", label: "Localization Map", icon: <FaEarthAmericas size={20} /> },
-    { href: "/scoreMap", label: "Localization Score Map", icon: <MdOutlineSportsScore size={22} /> },
     { href: "/", label: "Documentation", icon: <IoDocumentTextOutline size={22} /> },
   ];
 
