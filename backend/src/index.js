@@ -10,8 +10,12 @@ dotenv.config();
 
 // 2) Express'i içeri al
 import express from "express";
+import cors from "cors";
 
 const app = express();
+
+// Geliştirme ortamında frontend'den gelen istekleri kabul etmek için CORS
+app.use(cors());
 
 // 3) JSON body parse edebilmek için (POST request'lerde) middleware
 app.use(express.json());

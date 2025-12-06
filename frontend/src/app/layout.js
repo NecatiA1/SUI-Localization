@@ -24,9 +24,9 @@ export default function RootLayout({ children }) {
         className={`
           ${geistSans.variable} 
           ${geistMono.variable} 
-          bg-gray-100 
           min-h-screen 
           flex 
+          bg-[hsl(258,76%,3%)]
           flex-col
         `}
       >
