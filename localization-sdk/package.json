@@ -1,6 +1,6 @@
 {
   "name": "localization-sui-sdk",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Localization protocol SDK for Sui dapps",
   "type": "module",
   "main": "src/index.js",
