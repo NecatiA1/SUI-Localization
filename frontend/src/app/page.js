@@ -1,8 +1,14 @@
+import Documentation from '@/components/documentation';
+import ApiGeneratorCard from "@/components/apigeneratorCard";
+
+
 export default function DocumentationPage() {
   return (
-    <main style={{ padding: "2rem" }}>
-      <h1>Documentation Page</h1>
-      <p>This is the main page.</p>
+    <main className="px-72 py-8 space-y-12">
+      <Documentation />
+
+      {/* Yeni API Kartı */}
+      <ApiGeneratorCard />
     </main>
   );
 }

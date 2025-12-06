@@ -38,32 +38,8 @@ export default function Header() {
   ];
 
   return (
-    <header className="relative w-full bg-linear-to-r from-black via-purple-950 to-black text-white py-4 overflow-hidden">
-      {/* Background Stars */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {stars.map((star) => (
-          <div
-            key={star.id}
-            className="absolute w-1 h-1 bg-white rounded-full animate-pulse"
-            style={{
-              top: star.top,
-              left: star.left,
-              animationDelay: star.animationDelay,
-              opacity: star.opacity,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Scanning Line */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute h-px w-full bg-linear-to-r from-transparent via-cyan-400 to-transparent animate-scan" />
-      </div>
-
-      {/* Overlay */}
-      <div className="absolute inset-0 bg-linear-to-b from-blue-900/20 via-purple-900/20 to-black/20 pointer-events-none" />
-
-      <nav className="relative max-w-7xl mx-auto px-6 flex items-center justify-between">
+    <header className="relative w-full bg-linear-to-r from-black via-violet-950 to-black text-white py-3 overflow-hidden">
+      <nav className="relative max-w-7xl mx-auto px-4 flex items-center justify-between">
             {/* Logo / Brand */}
             <div className="flex items-center gap-3">
               <div className="relative w-8 h-8">
@@ -82,14 +58,14 @@ export default function Header() {
             </div>
 
             {/* Navigation */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               {navLinks.map((link, index) => (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`flex items-center gap-1.5 px-4 py-2 rounded-md transition-all duration-200 text-sm border border-transparent
-                    ${hoveredLink === index ? "bg-white/10 text-gray-200" : "border-gray-200 bg-white/20 text-gray-300"}
-                    hover:bg-white/15`}
+                  className={`flex items-center gap-1.5 px-4 py-1.5 rounded-lg transition-all bg-transparent duration-150 text-sm border-2 text-gray-300 shadow-sm shadow-pink-500/20
+                    ${hoveredLink === index ? "border-purple-300/40" : "border-purple-500/30"}
+                    `}
                   onMouseEnter={() => setHoveredLink(index)}
                   onMouseLeave={() => setHoveredLink(null)}
                 >
