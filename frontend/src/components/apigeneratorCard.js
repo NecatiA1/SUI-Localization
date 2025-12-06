@@ -4,7 +4,6 @@ import { useState } from "react";
 import { FiKey, FiCopy, FiCheckCircle } from "react-icons/fi";
 
 export default function ApiGeneratorCard() {
-  // 1. Değişiklik: 'username' yerine backend formatına uygun 'name' kullanıyoruz
   const [name, setName] = useState(""); 
   const [domain, setDomain] = useState("");
   const [description, setDescription] = useState("");

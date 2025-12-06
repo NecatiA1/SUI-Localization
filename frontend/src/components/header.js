@@ -67,14 +67,14 @@ export default function Header() {
 
   const navLinks = [
     { href: "/localization", label: "Localization Map", icon: <FaEarthAmericas size={20} /> },
-    { href: "/", label: "Documentation", icon: <IoDocumentTextOutline size={22} /> },
+    { href: "/documentation", label: "Documantacion", icon: <IoDocumentTextOutline size={22} /> },
   ];
 
   return (
     // --- GÜNCELLEME: Header Rengi ve Stili ---
     // Eski: bg-linear-to-r from-black via-violet-950 to-black
     // Yeni: bg-[#020617]/80 backdrop-blur-md border-b border-white/5 (Glassmorphism)
-    <header className="relative w-full bg-linear-to-r from-black via-[rgb(26,6,81)] to-black text-white py-3 overflow-visible z-50">
+    <header className="relative w-full bg-linear-to-r from-black via-[rgb(26,6,81)] to-black text-white py-3 overflow-visible z-20">
       <nav className="relative max-w-7xl mx-auto px-4 flex items-center justify-between">
         
         {/* --- Logo / Brand --- */}
