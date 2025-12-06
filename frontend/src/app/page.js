@@ -7,7 +7,8 @@ import {
   FaUserShield, FaCode, FaIndustry, FaMapMarkedAlt, FaCheckCircle 
 } from "react-icons/fa";
 
-// --- SCROLL REVEAL COMPONENT (Animasyonlu Görünüm) ---
+// --- SMOOTH SCROLL REVEAL COMPONENT ---
+// İçeriklerin aşağıdan yukarıya "Slow Motion" şeklinde gelmesini sağlar
 const ScrollReveal = ({ children, delay = 0 }) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef(null);
@@ -20,7 +21,7 @@ const ScrollReveal = ({ children, delay = 0 }) => {
           observer.unobserve(entry.target);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.15 } // %15'i görünce tetikle
     );
     if (ref.current) observer.observe(ref.current);
     return () => { if (ref.current) observer.disconnect(); };
@@ -29,8 +30,8 @@ const ScrollReveal = ({ children, delay = 0 }) => {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-1000 transform ${
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
+      className={`transition-all duration-[1200ms] ease-out transform ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-16"
       }`}
       style={{ transitionDelay: `${delay}ms` }}
     >
@@ -40,6 +41,23 @@ const ScrollReveal = ({ children, delay = 0 }) => {
 };
 
 export default function WelcomePage() {
+  // Mouse Pozisyonunu Takip Etmek İçin State
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (event) => {
+      setMousePosition({
+        x: event.clientX,
+        y: event.clientY,
+      });
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []);
+
   return (
     <div className="relative min-h-screen w-full bg-[#020617] text-slate-100 overflow-hidden selection:bg-purple-500 selection:text-white">
       
@@ -48,20 +66,31 @@ export default function WelcomePage() {
         Skip to main content
       </a>
 
-      {/* --- BACKGROUND EFFECTS --- */}
-      <div className="fixed inset-0 z-0 pointer-events-none" aria-hidden="true">
+      {/* --- DİNAMİK CURSOR TAKİP EDEN ARKA PLAN (SPOTLIGHT) --- */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        {/* Sabit Grid Deseni */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] opacity-20"></div>
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-600/20 rounded-full blur-[128px] animate-pulse motion-reduce:animate-none"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-[128px] animate-pulse delay-1000 motion-reduce:animate-none"></div>
+        
+        {/* Hareketli Spotlight */}
+        <div 
+            className="absolute inset-0 transition-opacity duration-300"
+            style={{
+                background: `radial-gradient(600px circle at ${mousePosition.x}px ${mousePosition.y}px, rgba(124, 58, 237, 0.15), transparent 80%)`
+            }}
+        ></div>
+
+        {/* Ekstra Sabit Işıklar (Atmosfer için) */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-purple-900/10 rounded-full blur-[128px]"></div>
+        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-900/10 rounded-full blur-[128px]"></div>
       </div>
 
       {/* --- HERO SECTION --- */}
       <main id="main-content" className="relative z-10">
         
-        <section className="relative max-w-7xl mx-auto px-6 pt-20 pb-32 flex flex-col items-center justify-center text-center min-h-[90vh]">
+        <section className="relative max-w-7xl mx-auto px-6 pt-24 pb-32 flex flex-col items-center justify-center text-center min-h-[90vh]">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs font-semibold text-purple-200 mb-8 cursor-default animate-in fade-in slide-in-from-bottom-4 duration-700">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs font-semibold text-purple-200 mb-8 cursor-default animate-in fade-in slide-in-from-bottom-4 duration-[1500ms]">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-purple-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-purple-500"></span>
@@ -70,7 +99,7 @@ export default function WelcomePage() {
           </div>
 
           {/* H1 Title */}
-          <h1 className="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+          <h1 className="text-5xl md:text-8xl font-extrabold tracking-tight mb-8 animate-in fade-in slide-in-from-bottom-8 duration-[1500ms]">
             <span className="block text-white mb-2">Visualize the</span>
             <span className="bg-gradient-to-r from-purple-400 via-cyan-300 to-white bg-clip-text text-transparent drop-shadow-sm">
               SUI Blockchain
@@ -78,13 +107,13 @@ export default function WelcomePage() {
           </h1>
 
           {/* Description */}
-          <p className="max-w-3xl text-lg md:text-2xl text-slate-300 mb-12 leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-1000 delay-200">
+          <p className="max-w-3xl text-lg md:text-2xl text-slate-300 mb-12 leading-relaxed animate-in fade-in slide-in-from-bottom-12 duration-[1500ms] delay-200">
             A revolutionary platform bridging the <b>Sui Blockchain</b> with the physical world. 
             Real-time geo-verification, 3D visualization, and next-gen security analysis for every transaction.
           </p>
 
           {/* Buttons */}
-          <div className="flex flex-col sm:flex-row gap-4 mb-20 animate-in fade-in slide-in-from-bottom-16 duration-1000 delay-300">
+          <div className="flex flex-col sm:flex-row gap-4 mb-20 animate-in fade-in slide-in-from-bottom-16 duration-[1500ms] delay-300">
             <Link 
               href="/localization"
               className="group relative px-8 py-4 bg-purple-600 hover:bg-purple-500 text-white rounded-full font-bold text-lg transition-all shadow-[0_0_20px_rgba(147,51,234,0.3)] hover:shadow-[0_0_30px_rgba(147,51,234,0.5)] flex items-center justify-center gap-2 focus:outline-none focus-visible:ring-4 focus-visible:ring-purple-300"
@@ -116,20 +145,20 @@ export default function WelcomePage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <ScrollReveal delay={100}>
-                    <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 hover:border-blue-500/30 transition-all h-full">
-                        <FaMapMarkedAlt className="text-4xl text-blue-400 mb-6" />
+                    <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 hover:border-blue-500/30 transition-all h-full group hover:-translate-y-2 duration-500">
+                        <FaMapMarkedAlt className="text-4xl text-blue-400 mb-6 group-hover:scale-110 transition-transform" />
                         <h3 className="text-2xl font-bold text-white mb-4">Interactive 3D Analysis</h3>
-                        <p className="text-slate-400">
+                        <p className="text-slate-400 leading-relaxed">
                             Every transaction is recorded and displayed dynamically on a 3D globe. Zoom in to reveal country, city, and transaction details, enabling transparent analysis of the geographical distribution and behavior of on-chain movements.
                         </p>
                     </div>
                 </ScrollReveal>
                 
                 <ScrollReveal delay={200}>
-                    <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 hover:border-purple-500/30 transition-all h-full">
-                        <FaShieldAlt className="text-4xl text-purple-400 mb-6" />
+                    <div className="p-8 rounded-2xl bg-gradient-to-br from-slate-900 to-slate-800 border border-white/10 hover:border-purple-500/30 transition-all h-full group hover:-translate-y-2 duration-500">
+                        <FaShieldAlt className="text-4xl text-purple-400 mb-6 group-hover:scale-110 transition-transform" />
                         <h3 className="text-2xl font-bold text-white mb-4">Geo-Security Standard</h3>
-                        <p className="text-slate-400">
+                        <p className="text-slate-400 leading-relaxed">
                            By adding a geographic verification layer to the blockchain, we introduce a new security paradigm. Location-transaction matching enhances user safety and opens entirely new use cases for the Sui ecosystem.
                         </p>
                     </div>
@@ -151,11 +180,11 @@ export default function WelcomePage() {
                     
                     {/* 1. USERS */}
                     <ScrollReveal delay={100}>
-                        <div className="group relative p-8 rounded-3xl bg-slate-900/60 border border-white/10 hover:border-emerald-500/50 hover:bg-slate-900/80 transition-all duration-300 h-full backdrop-blur-md overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all"></div>
+                        <div className="group relative p-8 rounded-3xl bg-slate-900/40 border border-white/10 hover:border-emerald-500/50 hover:bg-slate-900/60 transition-all duration-500 h-full backdrop-blur-md overflow-hidden hover:shadow-[0_0_50px_rgba(16,185,129,0.1)]">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-emerald-500/20 transition-all duration-700"></div>
                             
                             <div className="relative z-10">
-                                <div className="w-14 h-14 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-6 text-emerald-400">
+                                <div className="w-14 h-14 rounded-xl bg-emerald-500/20 flex items-center justify-center mb-6 text-emerald-400 group-hover:scale-110 transition-transform duration-500">
                                     <FaUserShield size={28} />
                                 </div>
                                 <h3 className="text-2xl font-bold text-white mb-2">For Users</h3>
@@ -181,11 +210,11 @@ export default function WelcomePage() {
 
                     {/* 2. DEVELOPERS */}
                     <ScrollReveal delay={200}>
-                        <div className="group relative p-8 rounded-3xl bg-slate-900/60 border border-white/10 hover:border-blue-500/50 hover:bg-slate-900/80 transition-all duration-300 h-full backdrop-blur-md overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all"></div>
+                        <div className="group relative p-8 rounded-3xl bg-slate-900/40 border border-white/10 hover:border-blue-500/50 hover:bg-slate-900/60 transition-all duration-500 h-full backdrop-blur-md overflow-hidden hover:shadow-[0_0_50px_rgba(59,130,246,0.1)]">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-blue-500/20 transition-all duration-700"></div>
                             
                             <div className="relative z-10">
-                                <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400">
+                                <div className="w-14 h-14 rounded-xl bg-blue-500/20 flex items-center justify-center mb-6 text-blue-400 group-hover:scale-110 transition-transform duration-500">
                                     <FaCode size={28} />
                                 </div>
                                 <h3 className="text-2xl font-bold text-white mb-2">For Developers</h3>
@@ -211,11 +240,11 @@ export default function WelcomePage() {
 
                     {/* 3. INDUSTRIES */}
                     <ScrollReveal delay={300}>
-                        <div className="group relative p-8 rounded-3xl bg-slate-900/60 border border-white/10 hover:border-purple-500/50 hover:bg-slate-900/80 transition-all duration-300 h-full backdrop-blur-md overflow-hidden">
-                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-purple-500/20 transition-all"></div>
+                        <div className="group relative p-8 rounded-3xl bg-slate-900/40 border border-white/10 hover:border-purple-500/50 hover:bg-slate-900/60 transition-all duration-500 h-full backdrop-blur-md overflow-hidden hover:shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-purple-500/20 transition-all duration-700"></div>
                             
                             <div className="relative z-10">
-                                <div className="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400">
+                                <div className="w-14 h-14 rounded-xl bg-purple-500/20 flex items-center justify-center mb-6 text-purple-400 group-hover:scale-110 transition-transform duration-500">
                                     <FaIndustry size={28} />
                                 </div>
                                 <h3 className="text-2xl font-bold text-white mb-2">For Sectors</h3>
@@ -249,16 +278,17 @@ export default function WelcomePage() {
                 <h2 className="text-4xl font-bold text-white mb-8">Ready to explore the network?</h2>
                 <Link 
                     href="/localization"
-                    className="inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-full font-bold text-xl transition-all shadow-lg hover:shadow-purple-500/25"
+                    className="group inline-flex items-center gap-2 px-10 py-5 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-full font-bold text-xl transition-all shadow-lg hover:shadow-purple-500/25"
                 >
                     Launch Interactive Map
-                    <FaArrowRight />
+                    <FaArrowRight className="group-hover:translate-x-1 transition-transform" />
                 </Link>
             </ScrollReveal>
         </section>
 
       </main>
 
+      {/* Alt Çizgi */}
       <div className="absolute bottom-0 w-full h-px bg-gradient-to-r from-transparent via-purple-500/50 to-transparent" aria-hidden="true"></div>
     </div>
   );
