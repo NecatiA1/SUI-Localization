@@ -2,7 +2,7 @@
 import pool from "./db/pool.js";
 import geoRoutes from "./routes/geoRoutes.js";
 import appRoutes from "./routes/appRoutes.js";
-
+import mapRoutes from "./routes/mapRoutes.js";
 
 // 1) .env dosyasını yükle
 import dotenv from "dotenv";
@@ -23,6 +23,7 @@ app.use(express.json());
 // Burada health ve db-test route'larından ÖNCE ya da SONRA da koyabilirsin
 app.use("/v1/apps", appRoutes);
 app.use("/v1/geo", geoRoutes);
+app.use("/v1/map", mapRoutes);
 
 // 4) Port'u .env'den oku, yoksa 4000 kullan
 const PORT = process.env.PORT || 4000;

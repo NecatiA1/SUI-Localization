@@ -153,7 +153,7 @@ router.post("/confirm", async (req, res) => {
     }
 
     const txScore = amountSui; // şimdilik score = amount
-
+    console.log(`Transaction ${txDigest} has amountSui: ${amountSui}, txScore: ${txScore}`);
     // 4) geo_tx kaydını güncelle
     const updateResult = await pool.query(
       `
@@ -169,7 +169,7 @@ router.post("/confirm", async (req, res) => {
       `,
       [txDigest, amountSui, txScore, geoTxId]
     );
-
+    console.log(`Geo transaction ${geoTxId} updated to CONFIRMED.`);
     const updated = updateResult.rows[0];
 
     // 5) Skoru istatistik tablolarına uygula
