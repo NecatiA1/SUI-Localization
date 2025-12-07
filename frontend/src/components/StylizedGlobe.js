@@ -26,6 +26,8 @@ export default function StylizedCityGlobe() {
 
   const [countries, setCountries] = useState({ features: [] });
   const [mounted, setMounted] = useState(false);
+  
+  // Tooltip state
   const [tooltip, setTooltip] = useState({
     visible: false,
     x: 0,
@@ -34,9 +36,9 @@ export default function StylizedCityGlobe() {
   });
 
   const getScoreColor = (score) => {
-    if (score >= 700) return "#22c55e";
-    if (score >= 400) return "#eab308";
-    return "#ef4444";
+    if (score >= 700) return "#22c55e"; // Yeşil
+    if (score >= 400) return "#eab308"; // Sarı
+    return "#ef4444"; // Kırmızı
   };
 
   useEffect(() => {
@@ -61,23 +63,25 @@ export default function StylizedCityGlobe() {
     controls.autoRotateSpeed = 0.35;
   };
 
-  const handleHover = (point) => {
-    if (point) {
+  // Hover mantığı: Görünmez küreye gelince çalışır
+  const handleHover = (obj) => {
+    if (obj) {
       document.body.style.cursor = "pointer";
       pauseRotation();
-      setTooltip({ visible: true, x: 0, y: 0, content: point });
+      // İçerik set edilir, görünür hale gelir.
+      // Pozisyon (x,y) div'in onMouseMove'undan güncellenir.
+      setTooltip((prev) => ({ ...prev, visible: true, content: obj }));
     } else {
       document.body.style.cursor = "default";
       if (!selectedCity) resumeRotation();
-      setTooltip((prev) => ({ ...prev, visible: false }));
+      setTooltip((prev) => ({ ...prev, visible: false, content: null }));
     }
   };
 
   const handlePointClick = (point) => {
     if (!point) return;
 
-    selectCity(point); // ⇒ store içinde summary’yi de çekecek
-
+    selectCity(point);
     setTooltip({ visible: false, x: 0, y: 0, content: null });
     pauseRotation();
 
@@ -89,7 +93,6 @@ export default function StylizedCityGlobe() {
     }
   };
 
-  // Modal kapandığında globe’u tekrar döndür
   useEffect(() => {
     if (!selectedCity && globeEl.current) {
       const currentPos = globeEl.current.pointOfView();
@@ -110,9 +113,10 @@ export default function StylizedCityGlobe() {
   return (
     <div 
         className="w-full h-screen relative bg-black overflow-hidden font-sans text-white"
+        // Tooltip'in mouse'u takip etmesi için en dış div'i dinliyoruz
         onMouseMove={(e) => {
-            if(tooltip.visible) {
-                setTooltip(prev => ({ ...prev, x: e.clientX, y: e.clientY }));
+            if (tooltip.visible) {
+                setTooltip((prev) => ({ ...prev, x: e.clientX, y: e.clientY }));
             }
         }}
     >
@@ -138,39 +142,46 @@ export default function StylizedCityGlobe() {
             resumeRotation();
           }
         }}
+        
+        // --- Ülkeler Haritası ---
         polygonsData={countries.features}
         polygonCapColor={() => "#1f2937"}
         polygonSideColor={() => "rgba(0,0,0,0)"}
         polygonStrokeColor={() => "#374151"}
-        polygonLabel={() => ""}
+        polygonLabel={() => ""} // Varsayılan etiketi kapatır
 
+        // --- GÖRSEL NOKTALAR (Tıklanmaz, sadece görünür) ---
         pointsData={cities}
         pointColor={(d) => getScoreColor(d.score)}
         pointRadius={0.15}
         pointAltitude={0.01}
         pointResolution={30}
-        pointLabel={() => ""}
-        onPointClick={handlePointClick}
-        onPointHover={handleHover}
+        pointLabel={() => ""} // Varsayılan etiketi kapatır (önemli)
 
+        // --- GÖRÜNMEZ TIKLAMA ALANLARI (Hitbox) ---
+        objectsData={cities}
+        objectLabel={() => ""} // Hitbox üzerindeki varsayılan yazıyı da kapatır
+        onObjectClick={(obj, event) => handlePointClick(obj)}
+        onObjectHover={(obj) => handleHover(obj)}
+        objectThreeObject={() => {
+          // Görünmez, büyük küre (Hitbox)
+          return new THREE.Mesh(
+            new THREE.SphereGeometry(1.5, 16, 16), // Yarıçap 1.5 (Geniş alan)
+            new THREE.MeshBasicMaterial({ 
+              opacity: 0.0, // Tamamen şeffaf
+              transparent: true 
+            })
+          );
+        }}
+
+        // --- Halkalar (Opsiyonel Görsel) ---
         ringsData={cities}
         ringAltitude={0.01}
-        onRingClick={handlePointClick}
-        onRingHover={handleHover}
         ringColor={(d) => (t) => {
           const hex = getScoreColor(d.score);
-          let r = 34,
-            g = 197,
-            b = 94;
-          if (hex === "#eab308") {
-            r = 234;
-            g = 179;
-            b = 8;
-          } else if (hex === "#ef4444") {
-            r = 239;
-            g = 68;
-            b = 68;
-          }
+          let r = 34, g = 197, b = 94;
+          if (hex === "#eab308") { r = 234; g = 179; b = 8; }
+          else if (hex === "#ef4444") { r = 239; g = 68; b = 68; }
           return `rgba(${r},${g},${b},${1 - t})`;
         }}
         ringMaxRadius={(d) => 2.0 + d.transactions / 5000}
@@ -178,23 +189,38 @@ export default function StylizedCityGlobe() {
         ringRepeatPeriod={800}
       />
 
+      {/* --- ÖZEL TOOLTIP (İstediğiniz Yeşil İkonlu Yapı) --- */}
       {tooltip.visible && tooltip.content && !selectedCity && (
         <div
-          className="fixed z-50 pointer-events-none bg-slate-900/80 backdrop-blur-md border border-slate-600 px-4 py-2 rounded-lg shadow-xl text-sm"
-          style={{ left: tooltip.x + 15, top: tooltip.y + 15 }}
+          className="fixed z-50 pointer-events-none bg-slate-900/90 backdrop-blur-md border border-slate-700 px-4 py-2 rounded-lg shadow-2xl text-sm transition-opacity duration-150"
+          style={{ 
+            left: tooltip.x + 15, // Mouse'un biraz sağına
+            top: tooltip.y + 15   // Mouse'un biraz altına
+          }}
         >
-          <div className="flex items-center gap-2">
-            <div
-              className="w-2 h-2 rounded-full"
-              style={{
-                backgroundColor: getScoreColor(tooltip.content.score),
-              }}
-            />
-            <span className="font-semibold text-white tracking-wide">
-              {tooltip.content.region}{" "}
-              <span className="text-slate-400 mx-1">/</span>{" "}
-              {tooltip.content.name}
-            </span>
+          <div className="flex items-center gap-3">
+            {/* Skor Rengi İkonu */}
+            <div className="relative flex items-center justify-center">
+                 <div
+                    className="w-3 h-3 rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]"
+                    style={{ backgroundColor: getScoreColor(tooltip.content.score) }}
+                 />
+                 {/* Hafif bir parlama efekti */}
+                 <div 
+                    className="absolute w-3 h-3 rounded-full animate-ping opacity-75"
+                    style={{ backgroundColor: getScoreColor(tooltip.content.score) }}
+                 />
+            </div>
+            
+            {/* Şehir Bilgisi */}
+            <div className="flex flex-col">
+                <span className="font-bold text-white text-base leading-tight">
+                  {tooltip.content.name}
+                </span>
+                <span className="text-xs text-slate-400 font-medium">
+                  {tooltip.content.region}
+                </span>
+            </div>
           </div>
         </div>
       )}
