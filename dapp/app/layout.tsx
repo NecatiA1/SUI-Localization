@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { SuiProviders } from "./sui-providers";
+import { SuiProviders } from "./sui-provider";
 
 export const metadata: Metadata = {
   title: "SUI Localization Demo",

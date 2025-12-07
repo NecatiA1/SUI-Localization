@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { localizationClient } from "@/lib/localizationClient";
+import { localizationClient } from "@/src/lib/localizationClient";
 
 // Sui dApp Kit
 import {

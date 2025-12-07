@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import useCommunityModalStore from "./CommunityModalStore";
 
 // API BASE (her yerde aynı mantık)
 const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")
@@ -183,12 +184,24 @@ const useGlobalStore = create((set, get) => ({
     }
   },
 
-  // Basit state setter’lar
+  // Basit state setter'lar
   clearSelectedUser: () =>
     set({
       selectedUser: null,
       userTransactions: [],
     }),
+
+  // Community seç + modal aç
+  selectCommunity: async (community) => {
+    if (!community || !community.id) {
+      console.warn("selectCommunity: geçersiz community:", community);
+      return;
+    }
+
+    // CommunityModalStore'daki openCommunityModal'ı çağır
+    const { openCommunityModal } = useCommunityModalStore.getState();
+    await openCommunityModal(community);
+  },
 
   // Modal kapatınca şehirle ilgili her şeyi sıfırla
   closeCityModal: () =>

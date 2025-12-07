@@ -41,7 +41,6 @@ export default function AnalyticsTab({ cityId, selectUser }) {
               <th className="px-4 py-3">Tx Count</th>
               {/* Backend'de 'score' geliyor, başlığı Score yapabilir veya Volume olarak bırakıp score'u basabilirsin */}
               <th className="px-4 py-3">Score</th> 
-              <th className="px-4 py-3">Status</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-700">
@@ -73,18 +72,6 @@ export default function AnalyticsTab({ cityId, selectUser }) {
                     </td>
                     <td className="px-4 py-3">
                       {Number(volume).toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          String(status).toLowerCase().includes("risk") || 
-                          String(status).toLowerCase() === "high" // Ekstra kontrol
-                            ? "bg-red-500/20 text-red-400"
-                            : "bg-green-500/20 text-green-400"
-                        }`}
-                      >
-                        {status}
-                      </span>
                     </td>
                   </tr>
                 );

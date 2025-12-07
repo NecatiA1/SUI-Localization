@@ -28,7 +28,7 @@ export default function CommunityModal() {
               {selectedCommunity.name}
             </h3>
             <p className="text-xs text-slate-400">
-              Global Operations Breakdown (app #{selectedCommunity.id})
+              Global Operations Breakdown
             </p>
           </div>
           <button
@@ -62,13 +62,13 @@ export default function CommunityModal() {
                 <b>{selectedCommunity.name}</b> across different regions:
               </p>
 
-              <div className="overflow-hidden rounded-lg border border-slate-700">
+              <div className="dark-scroll overflow-hidden rounded-lg border max-h-[500px] overflow-y-auto border-slate-700">
                 <table className="w-full text-left text-sm text-slate-300">
                   <thead className="bg-slate-800 text-xs uppercase text-slate-400">
                     <tr>
                       <th className="px-4 py-3">City / Region</th>
                       <th className="px-4 py-3">Tx Count</th>
-                      <th className="px-4 py-3">Total Volume</th>
+                      <th className="px-4 py-3">Total Score</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-700 bg-slate-800/30">
@@ -79,7 +79,7 @@ export default function CommunityModal() {
                         const region = stat.region || "";
                         const txCount =
                           stat.txCount ?? stat.tx_count ?? 0;
-                        const volume = stat.total_score ?? 5; // store'da volume yoksa score'u kullan
+                        const volume = stat.score ?? 5; // store'da volume yoksa score'u kullan
 
                         return (
                           <tr
@@ -98,7 +98,7 @@ export default function CommunityModal() {
                               {Number(txCount).toLocaleString()}
                             </td>
                             <td className="px-4 py-3 font-mono text-green-400">
-                              ${Number(volume).toLocaleString()}
+                              {Number(volume).toLocaleString()}
                             </td>
                           </tr>
                         );

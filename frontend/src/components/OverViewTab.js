@@ -1,4 +1,5 @@
 import React from "react";
+import { FiMapPin, FiTrendingUp, FiShield } from "react-icons/fi";
 
 export default function OverviewTab({
   region,
@@ -8,34 +9,44 @@ export default function OverviewTab({
   scoreStatus,
   getScoreColor,
 }) {
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Region */}
         <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-          <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-            Region Location
-          </span>
-          <div className="text-2xl font-bold text-white mt-2">{region}</div>
+          <div className="flex items-center gap-2 mb-3">
+            <FiMapPin className="text-blue-400 text-lg" />
+            <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
+              Region Location
+            </span>
+          </div>
+          <div className="text-2xl font-bold text-white">{region}</div>
         </div>
 
         {/* Tx Volume */}
         <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-          <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-            Live Tx Volume
-          </span>
-          <div className="text-2xl font-bold text-white mt-2">
+          <div className="flex items-center gap-2 mb-3">
+            <FiTrendingUp className="text-green-400 text-lg" />
+            <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
+              Live Tx Volume
+            </span>
+          </div>
+          <div className="text-2xl font-bold text-white">
             {Number(transactions).toLocaleString()}
           </div>
         </div>
 
         {/* Risky Score */}
         <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-          <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-            Localization Score
-          </span>
+          <div className="flex items-center gap-2 mb-3">
+            <FiShield className="text-amber-400 text-lg" />
+            <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
+              Localization Score
+            </span>
+          </div>
           <div
-            className="text-2xl font-bold mt-2"
+            className="text-2xl font-bold"
             style={{ color: getScoreColor(score) }}
           >
             {score}
