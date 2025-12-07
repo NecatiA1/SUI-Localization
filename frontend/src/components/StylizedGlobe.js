@@ -97,7 +97,7 @@ export default function StylizedCityGlobe() {
 
   return (
     <div 
-        className="w-full h-[calc(100vh-70px)] relative bg-black overflow-hidden font-sans text-white"
+        className="w-full h-screen relative bg-black overflow-hidden font-sans text-white"
         onMouseMove={(e) => {
             if(tooltip.visible) {
                 setTooltip(prev => ({ ...prev, x: e.clientX, y: e.clientY }));

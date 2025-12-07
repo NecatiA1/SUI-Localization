@@ -183,7 +183,7 @@ export default function Header() {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 group overflow-hidden
+                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 group overflow-hidden
                     ${
                       isActive
                         ? "text-white"
@@ -195,7 +195,7 @@ export default function Header() {
                   {isActive && (
                     <motion.div
                       layoutId="nav-pill"
-                      className="absolute inset-0 bg-white/10 border border-white/10 rounded-lg"
+                      className="absolute inset-0 bg-indigo-400/10 border border-white/10 rounded-lg"
                       transition={{ type: "spring", stiffness: 300, damping: 30 }}
                     />
                   )}
