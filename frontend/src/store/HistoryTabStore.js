@@ -1,34 +1,40 @@
-import { create } from 'zustand';
+import { create } from "zustand";
+
+const API_BASE = (process.env.NEXT_PUBLIC_API_URL || "http://localhost:4000")
+  .replace(/\/$/, "");
 
 const useHistoryTabStore = create((set) => ({
-  cityCommunities: [], // Backend'den gelen liste
+  cityCommunities: [],
   isLoading: false,
   error: null,
 
-  // App ID'sine göre veri çeken fonksiyon (endpoint: /v1/apps/:id/cities)
-  fetchCityCommunities: async (appId) => {
-    if (!appId) return;
+  // cityId: seçilen şehrin id'si
+  fetchCityCommunities: async (cityId) => {
+    if (!cityId) return;
 
     set({ isLoading: true, error: null });
+
     try {
-      const response = await fetch(`http://localhost:4000/v1/apps/${appId}/cities`);
-      
-      if (!response.ok) {
-        throw new Error('Veri çekilirken bir hata oluştu.');
+      // ✅ Yeni endpoint: /v1/apps/summary?cityId={cityId}
+      const url = `${API_BASE}/v1/apps/summary?cityId=${encodeURIComponent(
+        cityId
+      )}`;
+
+      const res = await fetch(url);
+      if (!res.ok) {
+        throw new Error(`status ${res.status}`);
       }
 
-      const data = await response.json();
+      const json = await res.json();
+      // Backend direkt array döndürüyor, ama yine de korumalı parse edelim
+      const list = Array.isArray(json) ? json : json.data || [];
 
-      // Backend direkt array dönüyor, onu state'e atıyoruz
-      set({ 
-        cityCommunities: data || [], 
-        isLoading: false 
-      });
-    } catch (error) {
-      console.error("History fetch error:", error);
-      set({ error: error.message, isLoading: false });
+      set({ cityCommunities: list, isLoading: false });
+    } catch (err) {
+      console.error("fetchCityCommunities error:", err);
+      set({ error: err.message, isLoading: false });
     }
-  }
+  },
 }));
 
 export default useHistoryTabStore;

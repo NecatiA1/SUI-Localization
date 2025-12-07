@@ -74,12 +74,12 @@ export default function CommunityModal() {
                   <tbody className="divide-y divide-slate-700 bg-slate-800/30">
                     {communityStats && communityStats.length > 0 ? (
                       communityStats.map((stat) => {
+                        console.log("Community Stat:", stat);
                         const cityName = stat.cityName || stat.name;
                         const region = stat.region || "";
                         const txCount =
                           stat.txCount ?? stat.tx_count ?? 0;
-                        const volume =
-                          stat.volume ?? stat.score ?? 0; // store'da volume yoksa score'u kullan
+                        const volume = stat.total_score ?? 5; // store'da volume yoksa score'u kullan
 
                         return (
                           <tr

@@ -85,3 +85,35 @@ export async function getAllAppsWithStats() {
     total_score: Number(row.total_score) || 0,
   }));
 }
+
+export async function getAppsByCityWithStats(cityId) {
+  // 1) Önce global app listesini al
+  const allApps = await getAllAppsWithStats();
+
+  const result = [];
+
+  // 2) Her app için şehir kırılımını çek
+  for (const app of allApps) {
+    const citiesForApp = await getAppCitiesStats(app.id);
+
+    // Bu app'in cityId'sine denk gelen satırı bul
+    const found = Array.isArray(citiesForApp)
+      ? citiesForApp.find((c) => Number(c.id) === Number(cityId))
+      : null;
+
+    if (found) {
+      result.push({
+        id: app.id,
+        name: app.name,
+        web_address: app.web_address,
+        description: app.description,
+        // Şehir özelinde gelen değerleri kullanıyoruz
+        members: found.members ?? 0,
+        tx_count: found.tx_count ?? 0,
+        total_score: found.score ?? 0,
+      });
+    }
+  }
+
+  return result;
+}

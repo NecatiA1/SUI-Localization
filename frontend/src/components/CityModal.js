@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import useGlobalStore from "../store/useGlobalStore";
 
 // Alt bileşenleri import ediyoruz
@@ -6,7 +6,7 @@ import OverviewTab from "./OverViewTab";
 import AnalyticsTab from "./AnalyticsTab";
 import HistoryTab from "./HistoryTab";
 
-// Renk fonksiyonu (Hem modal header hem de OverviewTab kullanıyor)
+// Renk fonksiyonu
 const getScoreColor = (score) => {
   if (score >= 700) return "#22c55e";
   if (score >= 400) return "#eab308";
@@ -26,9 +26,19 @@ export default function CityModal() {
 
   const [activeTab, setActiveTab] = useState("overview");
 
+  // 🔥 RISK RATE → Random 0–100 arası
+  const [randomRisk, setRandomRisk] = useState(null);
+
+  useEffect(() => {
+    if (selectedCity) {
+      // Yeni şehir seçildiğinde tekrar random üret
+      setRandomRisk(Math.floor((Math.random() * 50)+25)); // 0–100
+    }
+  }, [selectedCity]);
+
   if (!selectedCity) return null;
 
-  // --- Veri Normalizasyonu ve Hazırlık ---
+  // --- Veri Normalizasyonu ---
   const region =
     selectedCity.region ||
     selectedCity.country ||
@@ -47,9 +57,14 @@ export default function CityModal() {
     selectedCity.risk_score ??
     500;
 
-  const scorePercent = Math.round((score / 1000) * 100);
+  // ✔ Risk rate artık random üretilmiş değer
+  const scorePercent = randomRisk ?? 0;
   const scoreStatus =
-    score >= 700 ? "Secure" : score >= 400 ? "Moderate Risk" : "High Risk";
+    scorePercent >= 70
+      ? "Secure"
+      : scorePercent >= 40
+      ? "Moderate Risk"
+      : "High Risk";
 
   const cityCode =
     selectedCity.code ||
@@ -59,13 +74,12 @@ export default function CityModal() {
 
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center p-4">
-      {/* Arka plan karartması */}
+      
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={closeCityModal}
       ></div>
 
-      {/* Modal penceresi */}
       <div className="relative bg-[#0f172a] border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         
         {/* HEADER */}
@@ -90,7 +104,7 @@ export default function CityModal() {
           </button>
         </div>
 
-        {/* TABS NAVIGATION */}
+        {/* TABS */}
         <div className="flex border-b border-slate-700 bg-slate-800/30 shrink-0">
           <button
             onClick={() => setActiveTab("overview")}
@@ -124,7 +138,7 @@ export default function CityModal() {
           </button>
         </div>
 
-        {/* CONTENT AREA */}
+        {/* CONTENT */}
         <div className="p-6 overflow-y-auto custom-scrollbar min-h-[300px]">
           {isLoading && activeTab !== "overview" ? (
             <div className="flex flex-col items-center justify-center h-full space-y-4 py-10">
@@ -140,22 +154,22 @@ export default function CityModal() {
                   region={region}
                   transactions={transactions}
                   score={score}
-                  scorePercent={scorePercent}
+                  scorePercent={scorePercent}     // ⚡ random risk rate
                   scoreStatus={scoreStatus}
                   getScoreColor={getScoreColor}
                 />
               )}
 
               {activeTab === "analytics" && (
-                <AnalyticsTab 
-                  cityUsers={cityUsers} 
-                  selectUser={selectUser} 
+                <AnalyticsTab
+                  cityId={selectedCity.id}
+                  selectUser={selectUser}
                 />
               )}
 
-              {activeTab === "history" && (
+              {activeTab === "history" && selectedCity && (
                 <HistoryTab
-                  cityCommunities={cityCommunities}
+                  cityId={selectedCity.id}
                   selectCommunity={selectCommunity}
                 />
               )}

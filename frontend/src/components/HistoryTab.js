@@ -1,17 +1,22 @@
 import React, { useEffect } from "react";
 import useHistoryTabStore from "@/store/HistoryTabStore";
 
-// cityCommunities prop'u yerine appId alıyoruz (API'deki dinamik kısım)
-export default function HistoryTab({ appId, selectCommunity }) {
-  // Store'dan verileri ve fonksiyonu çek
-  const { cityCommunities, isLoading, error, fetchCityCommunities } = useHistoryTabStore();
+// ⛔ appId değil
+// ✅ cityId alıyoruz (seçili şehrin id'si)
+export default function HistoryTab({ cityId, selectCommunity }) {
+  const {
+    cityCommunities,
+    isLoading,
+    error,
+    fetchCityCommunities,
+  } = useHistoryTabStore();
 
-  // appId değiştiğinde isteği at
+  // cityId değiştiğinde o şehrin communities datasını çek
   useEffect(() => {
-    if (appId) {
-      fetchCityCommunities(appId);
+    if (cityId) {
+      fetchCityCommunities(cityId);
     }
-  }, [appId, fetchCityCommunities]);
+  }, [cityId, fetchCityCommunities]);
 
   // Loading Durumu
   if (isLoading) {
@@ -37,24 +42,21 @@ export default function HistoryTab({ appId, selectCommunity }) {
         {cityCommunities && cityCommunities.length > 0 ? (
           cityCommunities.map((comm) => {
             // Backend verilerini UI ile eşleştirme:
-            // comm.members -> members
-            // comm.tx_count -> commTxCount
-            // comm.score -> totalVolume (Backend score gönderiyor, biz volume olarak gösteriyoruz)
-            
+            // members       → comm.members
+            // tx_count      → comm.tx_count
+            // score         → totalVolume (Volume olarak gösteriyoruz)
+
             const members =
               comm.members ?? comm.memberCount ?? comm.member_count ?? 0;
-            
-            const commTxCount = 
-              comm.tx_count ?? comm.txCount ?? 0;
-            
-            // Backend "score" gönderiyor, bunu volume alanında kullanıyoruz
-            const totalVolume = 
-              comm.score ?? comm.totalVolume ?? comm.total_volume ?? 0;
+
+            const commTxCount = comm.tx_count ?? comm.txCount ?? 0;
+
+            const totalVolume = comm.total_score ?? 0;
 
             return (
               <div
                 key={comm.id || comm.name}
-                onClick={() => selectCommunity(comm)}
+                onClick={() => selectCommunity?.(comm)}
                 className="bg-slate-800/30 p-4 rounded-lg border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/50 transition-all cursor-pointer group"
               >
                 <div className="flex flex-col mb-2">
@@ -81,10 +83,10 @@ export default function HistoryTab({ appId, selectCommunity }) {
                     </div>
                   </div>
                   <div className="bg-slate-900/50 p-2 rounded">
-                    <div className="text-xs text-slate-500">Volume</div>
+                    <div className="text-xs text-slate-500">Score</div>
                     <div className="text-sm font-semibold text-green-400">
-                      {/* Backendden gelen score (Volume) büyük bir sayıysa K formatına çevirir */}
-                      ${(Number(totalVolume) / 1000).toFixed(1)}K
+                      {/* Score büyük sayıysa daha okunur olsun diye K formatı */}
+                      {(Number(totalVolume) / 1000).toFixed(1)}K
                     </div>
                   </div>
                 </div>

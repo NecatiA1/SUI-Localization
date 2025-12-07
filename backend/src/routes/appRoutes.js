@@ -5,6 +5,7 @@ import { registerOrGetApp } from "../services/appService.js";
 import {
   getAllAppsWithStats,
   getAppCitiesStats,
+  getAppsByCityWithStats,
 } from "../services/appSummaryService.js";
 
 const router = express.Router();
@@ -55,6 +56,24 @@ router.post("/register", async (req, res) => {
 
 router.get("/summary", async (req, res) => {
   try {
+    // ?cityId=1 gibi bir query param geçildiyse al
+    const cityIdParam = req.query.cityId;
+
+    // Eğer cityId verilmişse: sadece o şehre ait app'leri döndür
+    if (cityIdParam !== undefined) {
+      const cityId = Number(cityIdParam);
+
+      if (!cityId || Number.isNaN(cityId)) {
+        return res.status(400).json({ error: "Invalid cityId." });
+      }
+
+      const appsForCity = await getAppsByCityWithStats(cityId);
+
+      // Tüm app'lerde olduğu gibi direkt array döndürüyoruz
+      return res.json(appsForCity);
+    }
+
+    // cityId verilmemişse: eski davranış → tüm app'lerin global özeti
     const apps = await getAllAppsWithStats();
     return res.json(apps);
   } catch (err) {

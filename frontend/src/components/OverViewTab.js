@@ -32,14 +32,13 @@ export default function OverviewTab({
         {/* Risky Score */}
         <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
           <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-            Score
+            Localization Score
           </span>
           <div
             className="text-2xl font-bold mt-2"
             style={{ color: getScoreColor(score) }}
           >
             {score}
-            <span className="text-sm text-slate-500 ml-1">/1000</span>
           </div>
         </div>
       </div>
@@ -59,7 +58,7 @@ export default function OverviewTab({
             className="text-lg font-bold"
             style={{ color: getScoreColor(score) }}
           >
-            %{scorePercent} Secure
+            %{scorePercent} Risky
           </span>
         </div>
         <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner border border-slate-700/50">

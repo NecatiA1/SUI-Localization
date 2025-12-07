@@ -40,7 +40,7 @@ export default function AnalyticsTab({ cityId, selectUser }) {
               <th className="px-4 py-3">Address</th>
               <th className="px-4 py-3">Tx Count</th>
               {/* Backend'de 'score' geliyor, başlığı Score yapabilir veya Volume olarak bırakıp score'u basabilirsin */}
-              <th className="px-4 py-3">Score / Volume</th> 
+              <th className="px-4 py-3">Score</th> 
               <th className="px-4 py-3">Status</th>
             </tr>
           </thead>
