@@ -102,3 +102,56 @@ export async function getCityMapStats() {
     lng: row.lng !== null ? Number(row.lng) : null,
   }));
 }
+
+export async function bulkInsertCities(cities) {
+  if (!Array.isArray(cities) || cities.length === 0) {
+    return [];
+  }
+
+  // Basit validasyon: name zorunlu
+  const cleaned = cities
+    .map((c) => ({
+      name: c.name,
+      country_code: c.country_code || c.countryCode || null,
+      region_name: c.region_name || c.regionName || null,
+      center_lat:
+        c.center_lat !== undefined ? c.center_lat : c.centerLat ?? null,
+      center_lon:
+        c.center_lon !== undefined ? c.center_lon : c.centerLon ?? null,
+      meta: c.meta ?? null,
+    }))
+    .filter((c) => !!c.name);
+
+  if (cleaned.length === 0) {
+    return [];
+  }
+
+  const values = [];
+  const rowsSql = cleaned
+    .map((c, idx) => {
+      const base = idx * 6;
+      values.push(
+        c.name,
+        c.country_code,
+        c.region_name,
+        c.center_lat,
+        c.center_lon,
+        c.meta
+      );
+      return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${
+        base + 5
+      }, $${base + 6})`;
+    })
+    .join(", ");
+
+  const sql = `
+    INSERT INTO cities
+      (name, country_code, region_name, center_lat, center_lon, meta)
+    VALUES
+      ${rowsSql}
+    RETURNING id, name, country_code, region_name, center_lat, center_lon, meta
+  `;
+
+  const result = await pool.query(sql, values);
+  return result.rows;
+}

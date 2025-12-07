@@ -6,6 +6,8 @@ import { findOrCreateCity,resolveCityFromCoords  } from "../services/cityService
 import { applyScoreForConfirmedTx } from "../services/scoreService.js";
 import { getSuiAmountFromTxDigest } from "../services/suiService.js";
 import { validateAppCredentials } from "../services/appService.js";
+import { getUserTransactionsFromGeoTxId } from "../services/userTxService.js";
+
 const router = express.Router();
 
 /**
@@ -104,6 +106,40 @@ router.post("/start", async (req, res) => {
  *   "txDigest": "0xABC123..."
  * }
  */
+
+router.get("/user-tx/:geoTxId", async (req, res) => {
+  try {
+    const geoTxId = Number(req.params.geoTxId);
+
+    if (!geoTxId || Number.isNaN(geoTxId)) {
+      return res.status(400).json({ error: "Invalid geoTxId." });
+    }
+
+    const result = await getUserTransactionsFromGeoTxId(geoTxId);
+
+    if (!result) {
+      return res
+        .status(404)
+        .json({ error: "Geo transaction not found for given id." });
+    }
+
+    // Sadece transaction listesini döndürmek istiyorsan:
+    return res.json(result.transactions);
+
+    // Eğer address'i de göstermek istersen, şunu yapabilirsin:
+    // return res.json({
+    //   address: result.userAddress,
+    //   transactions: result.transactions,
+    // });
+  } catch (err) {
+    console.error("GET /v1/geo/user-tx/:geoTxId error:", err);
+    return res.status(500).json({
+      error: "Failed to fetch user transactions.",
+      debug: err.message,
+    });
+  }
+});
+
 router.post("/confirm", async (req, res) => {
   try {
     const { apiId, apiKey, geoTxId, txDigest } = req.body || {};

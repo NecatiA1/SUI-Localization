@@ -6,6 +6,7 @@ import {
   getCitySummary,
   getCityAddressStats,
 } from "../services/citySummaryService.js";
+import { bulkInsertCities } from "../services/cityService.js"; // <-- bunu ekle
 
 const router = express.Router();
 
@@ -30,6 +31,27 @@ const router = express.Router();
  *   ]
  * }
  */
+router.post("/cities/bulk", async (req, res) => {
+  try {
+    const payload = Array.isArray(req.body) ? req.body : req.body.cities;
+
+    if (!Array.isArray(payload) || payload.length === 0) {
+      return res.status(400).json({
+        error: "Body must be an array of city objects.",
+      });
+    }
+
+    const inserted = await bulkInsertCities(payload);
+
+    return res.status(201).json(inserted);
+  } catch (err) {
+    console.error("POST /v1/map/cities/bulk error:", err);
+    return res.status(500).json({
+      error: "Failed to bulk insert cities.",
+      debug: err.message,
+    });
+  }
+});
 
 router.get("/cities/:cityId/summary", async (req, res) => {
   try {
