@@ -4,32 +4,22 @@ import Link from "next/link";
 import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 import { usePathname } from "next/navigation"; 
+import useGlobalStore from "../store/useGlobalStore"; // Store import edildi
 
 // --- React Icons ---
-import { MdOutlineSportsScore } from "react-icons/md";
-// İkon paketleri düzeltildi (fa6 ve fa ayrımı)
 import { FaEarthAmericas } from "react-icons/fa6"; 
 import { FaSearch } from "react-icons/fa";
 import { IoDocumentTextOutline } from "react-icons/io5";
 
 const STAR_COUNT = 30;
 
-// --- MOCK DATA ---
-const MOCK_COMPANIES = [
-  { id: 1, name: "Cluster Alpha", city: "Istanbul", country: "Turkey", volume: 15200 },
-  { id: 2, name: "Nexus Node", city: "New York", country: "USA", volume: 18500 },
-  { id: 3, name: "Tokyo Grid", city: "Tokyo", country: "Japan", volume: 12800 },
-  { id: 4, name: "London Bridge DAO", city: "London", country: "UK", volume: 10500 },
-  { id: 5, name: "Berlin Core", city: "Berlin", country: "Germany", volume: 9300 },
-  { id: 6, name: "Singapore Flow", city: "Singapore", country: "Singapore", volume: 8900 },
-  { id: 7, name: "Sydney Chain", city: "Sydney", country: "Australia", volume: 4200 },
-  { id: 8, name: "Dubai Link", city: "Dubai", country: "UAE", volume: 11000 },
-  { id: 9, name: "Anatolia Sync", city: "Konya", country: "Turkey", volume: 7500 },
-  { id: 10, name: "Aegean Net", city: "Izmir", country: "Turkey", volume: 6200 },
-];
-
 export default function Header() {
   const pathname = usePathname(); 
+  
+  // --- ZUSTAND STORE ---
+  // Backend'den çekilen şehirleri ve seçim aksiyonunu alıyoruz
+  const { cities, selectCity } = useGlobalStore();
+
   const [hoveredLink, setHoveredLink] = useState(null);
   const [stars, setStars] = useState([]);
   
@@ -48,61 +38,71 @@ export default function Header() {
     setStars(generatedStars);
   }, []);
 
-  // --- ARAMA FİLTRELEME MANTIĞI ---
+  // --- ARAMA FİLTRELEME MANTIĞI (BACKEND VERİSİ İLE) ---
   const filteredResults = useMemo(() => {
+    // Eğer şehir verisi henüz yüklenmediyse boş dön
+    if (!cities || cities.length === 0) return [];
+
     if (!searchQuery.trim()) {
-      return [...MOCK_COMPANIES]
-        .sort((a, b) => b.volume - a.volume)
+      // Arama yoksa en yüksek işlem hacmine (transactions) göre ilk 5'i göster
+      return [...cities]
+        .sort((a, b) => (b.transactions || 0) - (a.transactions || 0))
         .slice(0, 5);
     }
 
     const lowerQuery = searchQuery.toLowerCase();
-    return MOCK_COMPANIES.filter(
+    // Şehir adı (name) veya Bölge/Ülke (region) içinde arama yap
+    return cities.filter(
       (item) =>
-        item.city.toLowerCase().includes(lowerQuery) ||
-        item.country.toLowerCase().includes(lowerQuery) ||
-        item.name.toLowerCase().includes(lowerQuery)
+        (item.name || "").toLowerCase().includes(lowerQuery) ||
+        (item.region || "").toLowerCase().includes(lowerQuery)
     );
-  }, [searchQuery]);
+  }, [searchQuery, cities]);
 
   const navLinks = [
     { href: "/localization", label: "Localization Map", icon: <FaEarthAmericas size={20} /> },
     { href: "/documentation", label: "Documantacion", icon: <IoDocumentTextOutline size={22} /> },
   ];
 
+  // Arama sonucuna tıklayınca çalışacak fonksiyon
+  const handleResultClick = (city) => {
+    console.log("Selected City:", city);
+    selectCity(city); // Global store'daki şehri güncelle (Harita oraya gidecektir)
+    setIsSearchFocused(false); // Dropdown'ı kapat
+    setSearchQuery(city.name); // Inputa ismini yaz (opsiyonel)
+  };
+//b
   return (
-    // --- GÜNCELLEME: Header Rengi ve Stili ---
-    // Eski: bg-linear-to-r from-black via-violet-950 to-black
-    // Yeni: bg-[#020617]/80 backdrop-blur-md border-b border-white/5 (Glassmorphism)
-    <header className="relative w-full bg-linear-to-r from-black via-[rgb(26,6,81)] to-black text-white py-3 overflow-visible z-20">
+    <header className="relative w-full bg-linear-to-r from-black/50 via-[rgb(26,6,81,0.4)] to-black/50 border-b border-gray-500 text-white py-3 overflow-visible z-20">
       <nav className="relative max-w-7xl mx-auto px-4 flex items-center justify-between">
         
         {/* --- Logo / Brand --- */}
-        <div className="flex items-center gap-3 shrink-0">
-          <div className="relative w-8 h-8 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
-            <Image
-              src="/logo.png"
-              alt="Logo"
-              fill
-              className="object-contain"
-              priority
-            />
-          </div>
-          {/* Yazıya daha modern bir gradient ve letter-spacing eklendi */}
-          <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-200 to-slate-400 bg-clip-text text-transparent hidden sm:block tracking-tight">
-            SUI - Localization
-          </span>
+        <div className="flex items-center gap-3">
+          <Link href="/" className="flex items-center gap-3">
+            <div className="relative w-8 h-8 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
+              <Image
+                src="/logo.png"
+                alt="Logo"
+                fill
+                className="object-contain"
+                priority
+              />
+            </div>
+
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-200 to-slate-400 bg-clip-text text-transparent hidden sm:block tracking-tight">
+              SUI - Localization
+            </span>
+          </Link>
         </div>
 
-        {/* --- SEARCH BAR (Sadece Localization Map sayfasında görünür) --- */}
+        {/* --- SEARCH BAR --- */}
         {pathname === "/localization" && (
           <div className="relative mx-4 flex-1 max-w-md hidden md:block group">
             <div className="relative flex items-center">
               <FaSearch className="absolute left-3 text-slate-400 group-hover:text-purple-400 transition-colors" />
-              {/* Input rengi header ile uyumlu hale getirildi */}
               <input
                 type="text"
-                placeholder="Search by City or Country..."
+                placeholder="Search by City or Region..."
                 className="w-full bg-slate-900/50 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-purple-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-slate-500 shadow-inner"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -115,7 +115,7 @@ export default function Header() {
             {isSearchFocused && (
               <div className="absolute top-full left-0 w-full mt-2 bg-[#0b0f19]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/50">
                 <div className="px-4 py-2 bg-white/5 text-xs text-slate-400 font-semibold uppercase tracking-wider border-b border-white/5">
-                  {searchQuery ? "Search Results" : "Top 5 Companies (Volume)"}
+                  {searchQuery ? "Search Results" : "Top Active Regions"}
                 </div>
 
                 <div className="max-h-60 overflow-y-auto custom-scrollbar">
@@ -124,29 +124,30 @@ export default function Header() {
                       <div
                         key={item.id}
                         className="px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors flex justify-between items-center group/item"
-                        onClick={() => {
-                          console.log("Selected:", item);
-                        }}
+                        onClick={() => handleResultClick(item)}
                       >
                         <div className="flex flex-col">
+                          {/* Backend'den gelen 'name' şehir adıdır */}
                           <span className="text-sm font-medium text-slate-200 group-hover/item:text-purple-300 transition-colors">
                             {item.name}
                           </span>
+                          {/* Backend'den gelen 'region' ülke/bölge kodudur */}
                           <span className="text-xs text-slate-500">
-                            {item.city}, {item.country}
+                            {item.region}
                           </span>
                         </div>
                         <div className="text-right">
+                          {/* Backend'den gelen 'transactions' hacim bilgisidir */}
                           <div className="text-xs text-emerald-400 font-mono font-medium">
-                            ${item.volume.toLocaleString()}
+                            {item.transactions ? item.transactions.toLocaleString() : 0}
                           </div>
-                          <div className="text-[10px] text-slate-600 uppercase">Volume</div>
+                          <div className="text-[10px] text-slate-600 uppercase">Txns</div>
                         </div>
                       </div>
                     ))
                   ) : (
                     <div className="p-4 text-center text-sm text-slate-500">
-                      No results found.
+                      {cities.length === 0 ? "Loading data..." : "No results found."}
                     </div>
                   )}
                 </div>
@@ -165,7 +166,7 @@ export default function Header() {
                 ${
                   pathname === link.href 
                   ? "bg-purple-500/10 border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
-                  : "bg-transparent border-transparent text-slate-400 hover:text-white hover:bg-white/5"
+                  : "bg-transparent border-transparent text-slate-400 hover:text-white hover:border-purple-500/20"
                 }
                 `}
               onMouseEnter={() => setHoveredLink(index)}
