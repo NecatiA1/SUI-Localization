@@ -1,7 +1,12 @@
 import React, { useState } from "react";
 import useGlobalStore from "../store/useGlobalStore";
 
-// Renk fonksiyonu
+// Alt bileşenleri import ediyoruz
+import OverviewTab from "./OverViewTab";
+import AnalyticsTab from "./AnalyticsTab";
+import HistoryTab from "./HistoryTab";
+
+// Renk fonksiyonu (Hem modal header hem de OverviewTab kullanıyor)
 const getScoreColor = (score) => {
   if (score >= 700) return "#22c55e";
   if (score >= 400) return "#eab308";
@@ -23,7 +28,7 @@ export default function CityModal() {
 
   if (!selectedCity) return null;
 
-  // Backend’ten gelebilecek farklı alan isimlerine göre normalizasyon
+  // --- Veri Normalizasyonu ve Hazırlık ---
   const region =
     selectedCity.region ||
     selectedCity.country ||
@@ -43,7 +48,6 @@ export default function CityModal() {
     500;
 
   const scorePercent = Math.round((score / 1000) * 100);
-
   const scoreStatus =
     score >= 700 ? "Secure" : score >= 400 ? "Moderate Risk" : "High Risk";
 
@@ -63,6 +67,7 @@ export default function CityModal() {
 
       {/* Modal penceresi */}
       <div className="relative bg-[#0f172a] border border-slate-700 w-full max-w-3xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+        
         {/* HEADER */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-700 bg-slate-900/50">
           <div className="flex items-center gap-3">
@@ -85,7 +90,7 @@ export default function CityModal() {
           </button>
         </div>
 
-        {/* TABS */}
+        {/* TABS NAVIGATION */}
         <div className="flex border-b border-slate-700 bg-slate-800/30 shrink-0">
           <button
             onClick={() => setActiveTab("overview")}
@@ -119,7 +124,7 @@ export default function CityModal() {
           </button>
         </div>
 
-        {/* CONTENT */}
+        {/* CONTENT AREA */}
         <div className="p-6 overflow-y-auto custom-scrollbar min-h-[300px]">
           {isLoading && activeTab !== "overview" ? (
             <div className="flex flex-col items-center justify-center h-full space-y-4 py-10">
@@ -130,218 +135,29 @@ export default function CityModal() {
             </div>
           ) : (
             <>
-              {/* OVERVIEW TAB */}
               {activeTab === "overview" && (
-                <div className="space-y-8 animate-in fade-in duration-300">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-                        Region Location
-                      </span>
-                      <div className="text-2xl font-bold text-white mt-2">
-                        {region}
-                      </div>
-                    </div>
-                    <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-                        Live Tx Volume
-                      </span>
-                      <div className="text-2xl font-bold text-white mt-2">
-                        {Number(transactions).toLocaleString()}
-                      </div>
-                    </div>
-                    <div className="bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex flex-col items-center justify-center text-center">
-                      <span className="text-slate-400 text-xs uppercase font-bold tracking-widest">
-                        Security Score
-                      </span>
-                      <div
-                        className="text-2xl font-bold mt-2"
-                        style={{ color: getScoreColor(score) }}
-                      >
-                        {score}
-                        <span className="text-sm text-slate-500 ml-1">
-                          /1000
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Risk Bar */}
-                  <div className="bg-slate-800/20 rounded-xl p-6 border border-slate-700/50">
-                    <div className="flex justify-between items-end mb-3">
-                      <div className="flex flex-col">
-                        <span className="text-sm font-semibold text-white">
-                          Regional Risk Level
-                        </span>
-                        <span className="text-xs text-slate-400 mt-1">
-                          Status: {scoreStatus}
-                        </span>
-                      </div>
-                      <span
-                        className="text-lg font-bold"
-                        style={{ color: getScoreColor(score) }}
-                      >
-                        %{scorePercent} Secure
-                      </span>
-                    </div>
-                    <div className="w-full h-3 bg-slate-900 rounded-full overflow-hidden shadow-inner border border-slate-700/50">
-                      <div
-                        className="h-full relative overflow-hidden transition-all duration-1000"
-                        style={{
-                          width: `${scorePercent}%`,
-                          backgroundColor: getScoreColor(score),
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
+                <OverviewTab
+                  region={region}
+                  transactions={transactions}
+                  score={score}
+                  scorePercent={scorePercent}
+                  scoreStatus={scoreStatus}
+                  getScoreColor={getScoreColor}
+                />
               )}
 
-              {/* INDIVIDUAL / USERS */}
               {activeTab === "analytics" && (
-                <div className="animate-in slide-in-from-bottom-2 duration-300">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-400">
-                      <thead className="text-xs uppercase bg-slate-800/50 text-slate-300">
-                        <tr>
-                          <th className="px-4 py-3">Address</th>
-                          <th className="px-4 py-3">Tx Count</th>
-                          <th className="px-4 py-3">Volume</th>
-                          <th className="px-4 py-3">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-700">
-                        {cityUsers && cityUsers.length > 0 ? (
-                          cityUsers.map((user) => {
-                            const txCount =
-                              user.txCount ?? user.tx_count ?? 0;
-                            const volume =
-                              user.volume ??
-                              user.volumeUsd ??
-                              user.volume_usd ??
-                              0;
-                            const status =
-                              user.status ??
-                              user.riskLevel ??
-                              user.risk_level ??
-                              "Unknown";
-
-                            return (
-                              <tr
-                                key={user.id || user.address}
-                                onClick={() => selectUser(user)}
-                                className="hover:bg-slate-700/50 cursor-pointer transition-colors group"
-                              >
-                                <td className="px-4 py-3 font-mono text-xs group-hover:text-blue-400">
-                                  {user.address}
-                                </td>
-                                <td className="px-4 py-3">
-                                  {Number(txCount).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-3">
-                                  {Number(volume).toLocaleString()}
-                                </td>
-                                <td className="px-4 py-3">
-                                  <span
-                                    className={`px-2 py-1 rounded-full text-xs ${
-                                      String(status).toLowerCase().includes(
-                                        "risk"
-                                      )
-                                        ? "bg-red-500/20 text-red-400"
-                                        : "bg-green-500/20 text-green-400"
-                                    }`}
-                                  >
-                                    {status}
-                                  </span>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        ) : (
-                          <tr>
-                            <td
-                              colSpan="4"
-                              className="px-4 py-8 text-center text-slate-500 italic"
-                            >
-                              No active users found in this region.
-                            </td>
-                          </tr>
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
+                <AnalyticsTab 
+                  cityUsers={cityUsers} 
+                  selectUser={selectUser} 
+                />
               )}
 
-              {/* COMMUNITIES */}
               {activeTab === "history" && (
-                <div className="animate-in slide-in-from-bottom-2 duration-300">
-                  <div className="grid gap-3">
-                    {cityCommunities && cityCommunities.length > 0 ? (
-                      cityCommunities.map((comm) => {
-                        const members =
-                          comm.members ??
-                          comm.memberCount ??
-                          comm.member_count ??
-                          0;
-                        const commTxCount =
-                          comm.txCount ?? comm.tx_count ?? 0;
-                        const totalVolume =
-                          comm.totalVolume ?? comm.total_volume ?? 0;
-
-                        return (
-                          <div
-                            key={comm.id || comm.name}
-                            onClick={() => selectCommunity(comm)}
-                            className="bg-slate-800/30 p-4 rounded-lg border border-slate-700/50 hover:border-blue-500/50 hover:bg-slate-800/50 transition-all cursor-pointer group"
-                          >
-                            <div className="flex flex-col mb-2">
-                              <h4 className="text-white font-bold group-hover:text-blue-400 transition-colors">
-                                {comm.name}
-                              </h4>
-                              {comm.description && (
-                                <p className="text-xs text-slate-400 mt-2 leading-relaxed opacity-80">
-                                  {comm.description}
-                                </p>
-                              )}
-                            </div>
-                            <div className="grid grid-cols-3 gap-2 mt-3 text-center">
-                              <div className="bg-slate-900/50 p-2 rounded">
-                                <div className="text-xs text-slate-500">
-                                  Members
-                                </div>
-                                <div className="text-sm font-semibold text-slate-200">
-                                  {Number(members).toLocaleString()}
-                                </div>
-                              </div>
-                              <div className="bg-slate-900/50 p-2 rounded">
-                                <div className="text-xs text-slate-500">
-                                  Tx Count
-                                </div>
-                                <div className="text-sm font-semibold text-slate-200">
-                                  {Number(commTxCount).toLocaleString()}
-                                </div>
-                              </div>
-                              <div className="bg-slate-900/50 p-2 rounded">
-                                <div className="text-xs text-slate-500">
-                                  Volume
-                                </div>
-                                <div className="text-sm font-semibold text-green-400">
-                                  $
-                                  {(Number(totalVolume) / 1000).toFixed(1)}K
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <div className="text-center text-slate-500 py-8 italic">
-                        No active communities found.
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <HistoryTab
+                  cityCommunities={cityCommunities}
+                  selectCommunity={selectCommunity}
+                />
               )}
             </>
           )}

@@ -4,7 +4,7 @@ import ApiGeneratorCard from "@/components/apigeneratorCard";
 
 export default function DocumentationPage() {
   return (
-    <main className="px-72 py-8 space-y-12">
+    <main className="px-72 py-8 space-y-12 pt-20">
       <Documentation />
 
       {/* Yeni API Kartı */}
