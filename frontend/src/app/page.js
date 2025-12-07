@@ -96,7 +96,7 @@ export default function WelcomePage() {
             {/* Title */}
             <motion.h1 variants={fadeInUp} className="text-5xl md:text-8xl font-extrabold tracking-tight mb-8">
               <span className="block text-white mb-2">Visualize the</span>
-              <span className="bg-gradient-to-r from-purple-400 via-cyan-300 to-white bg-clip-text text-transparent drop-shadow-sm">
+              <span className="bg-gradient-to-r from-purple-400 via-blue-500 to-white bg-clip-text text-transparent drop-shadow-sm">
                 SUI Blockchain
               </span>
             </motion.h1>
@@ -343,7 +343,7 @@ export default function WelcomePage() {
                             <FaRocket className="text-white text-xs" />
                         </div>
                         <div className="md:w-5/12 pl-16 md:pl-12 order-1 md:order-1 opacity-50 md:opacity-100">
-                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">Q1 2024</span>
+                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">Q1 2025</span>
                         </div>
                     </motion.div>
 
@@ -356,12 +356,15 @@ export default function WelcomePage() {
                         className="relative flex flex-col md:flex-row items-center justify-between mb-16"
                     >
                         <div className="md:w-5/12 text-left md:text-right mb-4 md:mb-0 pl-16 md:pl-0 md:pr-12 order-1 md:order-1 md:text-slate-500 opacity-50 md:opacity-100">
-                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">Q3 2024</span>
+                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">Q2 2025</span>
                         </div>
                         <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-slate-700 border-2 border-[#020617] z-10"></div>
                         <div className="md:w-5/12 pl-16 md:pl-12 order-1 md:order-1">
                             <h3 className="text-xl font-bold text-white">Phase 2: Oracle Beta</h3>
                             <p className="text-slate-400 mt-2">Release of the Geo-Oracle SDK for developers and integration with pilot dApps.</p>
+                        </div>
+                        <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-purple-600 border-4 border-[#020617] flex items-center justify-center z-10 shadow-[0_0_20px_rgba(147,51,234,0.5)]">
+                            <FaRocket className="text-white text-xs" />
                         </div>
                     </motion.div>
 
@@ -379,7 +382,7 @@ export default function WelcomePage() {
                         </div>
                         <div className="absolute left-8 md:left-1/2 -translate-x-1/2 w-4 h-4 rounded-full bg-slate-700 border-2 border-[#020617] z-10"></div>
                         <div className="md:w-5/12 pl-16 md:pl-12 order-1 md:order-1 opacity-50 md:opacity-100">
-                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">2025+</span>
+                            <span className="text-xs font-mono text-slate-500 border border-slate-800 px-2 py-1 rounded">Upcoming</span>
                         </div>
                     </motion.div>
                  </div>

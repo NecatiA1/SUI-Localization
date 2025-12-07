@@ -1,57 +1,49 @@
 "use client";
 
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
-import { usePathname } from "next/navigation"; 
-import useGlobalStore from "../store/useGlobalStore"; // Store import edildi
+import { usePathname } from "next/navigation";
+import useGlobalStore from "../store/useGlobalStore";
+import { motion, AnimatePresence } from "framer-motion";
 
-// --- React Icons ---
-import { FaEarthAmericas } from "react-icons/fa6"; 
-import { FaSearch } from "react-icons/fa";
+// --- Icons ---
+import { FaSearch, FaGlobeAmericas } from "react-icons/fa";
 import { IoDocumentTextOutline } from "react-icons/io5";
-
-const STAR_COUNT = 30;
+import { RiHome4Line } from "react-icons/ri"; // Opsiyonel Home ikonu
 
 export default function Header() {
-  const pathname = usePathname(); 
+  const pathname = usePathname();
   
   // --- ZUSTAND STORE ---
-  // Backend'den çekilen şehirleri ve seçim aksiyonunu alıyoruz
   const { cities, selectCity } = useGlobalStore();
 
-  const [hoveredLink, setHoveredLink] = useState(null);
-  const [stars, setStars] = useState([]);
-  
-  // Search States
+  // --- LOCAL STATE ---
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [scrolled, setScrolled] = useState(false);
 
+  // Scroll takibi (Header arka planını yoğunlaştırmak için)
   useEffect(() => {
-    const generatedStars = Array.from({ length: STAR_COUNT }, (_, i) => ({
-      id: i,
-      top: `${Math.random() * 100}%`,
-      left: `${Math.random() * 100}%`,
-      animationDelay: `${Math.random() * 3}s`,
-      opacity: Math.random() * 0.7 + 0.3,
-    }));
-    setStars(generatedStars);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- ARAMA FİLTRELEME MANTIĞI (BACKEND VERİSİ İLE) ---
+  // --- FILTERING LOGIC ---
   const filteredResults = useMemo(() => {
-    // Eğer şehir verisi henüz yüklenmediyse boş dön
     if (!cities || cities.length === 0) return [];
 
     if (!searchQuery.trim()) {
-      // Arama yoksa en yüksek işlem hacmine (transactions) göre ilk 5'i göster
+      // Varsayılan: En çok işlem yapılan ilk 5 şehir
       return [...cities]
         .sort((a, b) => (b.transactions || 0) - (a.transactions || 0))
         .slice(0, 5);
     }
 
     const lowerQuery = searchQuery.toLowerCase();
-    // Şehir adı (name) veya Bölge/Ülke (region) içinde arama yap
     return cities.filter(
       (item) =>
         (item.name || "").toLowerCase().includes(lowerQuery) ||
@@ -59,146 +51,186 @@ export default function Header() {
     );
   }, [searchQuery, cities]);
 
+  // --- ACTIONS ---
+  const handleResultClick = (city) => {
+    selectCity(city);
+    setIsSearchFocused(false);
+    setSearchQuery(city.name);
+  };
+
   const navLinks = [
-    { href: "/localization", label: "Localization Map", icon: <FaEarthAmericas size={20} /> },
-    { href: "/documentation", label: "Documantacion", icon: <IoDocumentTextOutline size={22} /> },
+    { href: "/", label: "Home", icon: <RiHome4Line size={20} /> },
+    { href: "/localization", label: "Localization Map", icon: <FaGlobeAmericas size={18} /> },
+    { href: "/documentation", label: "Docs", icon: <IoDocumentTextOutline size={20} /> },
   ];
 
-  // Arama sonucuna tıklayınca çalışacak fonksiyon
-  const handleResultClick = (city) => {
-    console.log("Selected City:", city);
-    selectCity(city); // Global store'daki şehri güncelle (Harita oraya gidecektir)
-    setIsSearchFocused(false); // Dropdown'ı kapat
-    setSearchQuery(city.name); // Inputa ismini yaz (opsiyonel)
-  };
-//b
   return (
-    <header className="relative w-full bg-linear-to-r from-black/50 via-[rgb(26,6,81,0.4)] to-black/50 border-b border-gray-500 text-white py-3 overflow-visible z-20">
-      <nav className="relative max-w-7xl mx-auto px-4 flex items-center justify-between">
-        
-        {/* --- Logo / Brand --- */}
-        <div className="flex items-center gap-3">
-          <Link href="/" className="flex items-center gap-3">
-            <div className="relative w-8 h-8 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]">
-              <Image
-                src="/logo.png"
-                alt="Logo"
-                fill
-                className="object-contain"
-                priority
-              />
-            </div>
-
-            <span className="text-2xl font-bold bg-gradient-to-r from-blue-500 via-purple-200 to-slate-400 bg-clip-text text-transparent hidden sm:block tracking-tight">
-              SUI - Localization
-            </span>
-          </Link>
+    <>
+      <header
+        className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 border-b 
+        ${
+          scrolled
+            ? "bg-[#020617]/80 backdrop-blur-xl border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.5)]"
+            : "bg-transparent border-transparent"
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+          
+          {/* --- LOGO KISMI --- */}
+        <Link href="/" className="group flex items-center gap-3 relative z-10">
+        <div className="relative w-9 h-9">
+         {/* Logo Glow Effect */}
+        <div className="absolute inset-0 bg-purple-600 rounded-full blur-lg opacity-40 group-hover:opacity-75 transition-opacity duration-500" />
+        <Image
+        src="/logo.png"
+        alt="Logo"
+        fill
+        className="object-contain relative z-10 drop-shadow-sm"
+        priority
+       />
         </div>
+  
+      {/* Gradyan Yapılmış Metin */}
+      <span className="text-xl font-bold tracking-tight hidden sm:block bg-gradient-to-r from-blue-500 via-purple-200 to-purple-600 bg-clip-text text-transparent">
+       Sui-Localization
+      </span>
+      </Link>
 
-        {/* --- SEARCH BAR --- */}
-        {pathname === "/localization" && (
-          <div className="relative mx-4 flex-1 max-w-md hidden md:block group">
-            <div className="relative flex items-center">
-              <FaSearch className="absolute left-3 text-slate-400 group-hover:text-purple-400 transition-colors" />
-              <input
-                type="text"
-                placeholder="Search by City or Region..."
-                className="w-full bg-slate-900/50 border border-white/10 rounded-full py-2 pl-10 pr-4 text-sm text-white focus:outline-none focus:border-purple-500/50 focus:bg-slate-900/80 focus:ring-1 focus:ring-purple-500/50 transition-all placeholder-slate-500 shadow-inner"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-              />
-            </div>
-
-            {/* --- DROPDOWN RESULTS --- */}
-            {isSearchFocused && (
-              <div className="absolute top-full left-0 w-full mt-2 bg-[#0b0f19]/95 backdrop-blur-xl border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[60] animate-in fade-in zoom-in-95 duration-200 ring-1 ring-black/50">
-                <div className="px-4 py-2 bg-white/5 text-xs text-slate-400 font-semibold uppercase tracking-wider border-b border-white/5">
-                  {searchQuery ? "Search Results" : "Top Active Regions"}
+          {/* --- SEARCH BAR (Sadece Map Sayfasında veya İstersen Her Yerde) --- */}
+          {pathname === "/localization" && (
+            <div className="hidden md:block flex-1 max-w-lg mx-8 relative z-50">
+              <div className="relative group">
+                {/* Input Glow */}
+                <div 
+                    className={`absolute -inset-0.5 bg-gradient-to-r from-purple-500 to-cyan-500 rounded-full blur opacity-20 group-hover:opacity-50 transition duration-500 ${isSearchFocused ? 'opacity-75' : ''}`}
+                ></div>
+                
+                <div className="relative flex items-center bg-[#0b0f19] rounded-full border border-slate-700/50 overflow-hidden focus-within:border-purple-500/50 transition-colors">
+                  <div className="pl-4 text-slate-400">
+                    <FaSearch />
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Search city, region or country..."
+                    className="w-full bg-transparent text-sm text-slate-200 placeholder-slate-500 px-3 py-2.5 focus:outline-none"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onFocus={() => setIsSearchFocused(true)}
+                    onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+                  />
                 </div>
 
-                <div className="max-h-60 overflow-y-auto custom-scrollbar">
-                  {filteredResults.length > 0 ? (
-                    filteredResults.map((item) => (
-                      <div
-                        key={item.id}
-                        className="px-4 py-3 hover:bg-white/5 cursor-pointer border-b border-white/5 last:border-0 transition-colors flex justify-between items-center group/item"
-                        onClick={() => handleResultClick(item)}
-                      >
-                        <div className="flex flex-col">
-                          {/* Backend'den gelen 'name' şehir adıdır */}
-                          <span className="text-sm font-medium text-slate-200 group-hover/item:text-purple-300 transition-colors">
-                            {item.name}
-                          </span>
-                          {/* Backend'den gelen 'region' ülke/bölge kodudur */}
-                          <span className="text-xs text-slate-500">
-                            {item.region}
-                          </span>
-                        </div>
-                        <div className="text-right">
-                          {/* Backend'den gelen 'transactions' hacim bilgisidir */}
-                          <div className="text-xs text-emerald-400 font-mono font-medium">
-                            {item.transactions ? item.transactions.toLocaleString() : 0}
-                          </div>
-                          <div className="text-[10px] text-slate-600 uppercase">Txns</div>
-                        </div>
+                {/* --- DROPDOWN RESULTS --- */}
+                <AnimatePresence>
+                  {isSearchFocused && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 10, scale: 0.98 }}
+                      transition={{ duration: 0.2 }}
+                      className="absolute top-full left-0 w-full mt-3 bg-[#0b0f19]/95 backdrop-blur-2xl border border-slate-700/50 rounded-xl shadow-2xl overflow-hidden ring-1 ring-white/5"
+                    >
+                      <div className="px-4 py-2 bg-white/5 text-[10px] font-bold text-purple-400 uppercase tracking-widest border-b border-white/5">
+                        {searchQuery ? "Search Results" : "Most Active Regions"}
                       </div>
-                    ))
-                  ) : (
-                    <div className="p-4 text-center text-sm text-slate-500">
-                      {cities.length === 0 ? "Loading data..." : "No results found."}
-                    </div>
+
+                      <div className="max-h-64 overflow-y-auto custom-scrollbar">
+                        {filteredResults.length > 0 ? (
+                          filteredResults.map((item, idx) => (
+                            <button
+                              key={idx}
+                              onClick={() => handleResultClick(item)}
+                              className="w-full text-left px-4 py-3 hover:bg-white/5 border-b border-white/5 last:border-0 transition-colors flex justify-between items-center group/item"
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-sm font-medium text-slate-200 group-hover/item:text-purple-300 transition-colors">
+                                  {item.name}
+                                </span>
+                                <span className="text-xs text-slate-500 group-hover/item:text-slate-400">
+                                  {item.region}
+                                </span>
+                              </div>
+                              <div className="text-right">
+                                <div className="text-xs text-emerald-400 font-mono font-bold bg-emerald-400/10 px-2 py-0.5 rounded">
+                                  {item.transactions ? item.transactions.toLocaleString() : 0}
+                                </div>
+                                <div className="text-[10px] text-slate-600 mt-0.5">TXNS</div>
+                              </div>
+                            </button>
+                          ))
+                        ) : (
+                          <div className="p-6 text-center text-sm text-slate-500">
+                            {cities.length === 0 ? (
+                              <span className="animate-pulse">Loading network data...</span>
+                            ) : (
+                              "No matching location found."
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </motion.div>
                   )}
-                </div>
+                </AnimatePresence>
               </div>
-            )}
-          </div>
-        )}
+            </div>
+          )}
 
-        {/* --- Navigation --- */}
-        <div className="flex items-center gap-2 shrink-0">
-          {navLinks.map((link, index) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 text-sm font-medium border
-                ${
-                  pathname === link.href 
-                  ? "bg-purple-500/10 border-purple-500/50 text-white shadow-[0_0_15px_rgba(168,85,247,0.15)]" 
-                  : "bg-transparent border-transparent text-slate-400 hover:text-white hover:border-purple-500/20"
-                }
-                `}
-              onMouseEnter={() => setHoveredLink(index)}
-              onMouseLeave={() => setHoveredLink(null)}
-            >
-              <span className={`text-lg transition-transform duration-300 ${hoveredLink === index ? "scale-110" : "scale-100"}`}>
-                {link.icon}
-              </span>
-              <span className="hidden lg:block">
-                {link.label}
-              </span>
-            </Link>
-          ))}
+          {/* --- NAV LINKS --- */}
+          <nav className="flex items-center gap-1">
+            {navLinks.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`relative px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300 flex items-center gap-2 group overflow-hidden
+                    ${
+                      isActive
+                        ? "text-white"
+                        : "text-slate-400 hover:text-white"
+                    }
+                  `}
+                >
+                  {/* Active Background Glow */}
+                  {isActive && (
+                    <motion.div
+                      layoutId="nav-pill"
+                      className="absolute inset-0 bg-white/10 border border-white/10 rounded-lg"
+                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                    />
+                  )}
+                  
+                  {/* Hover Light Effect */}
+                  <span className="absolute inset-0 rounded-lg bg-gradient-to-r from-purple-500/0 via-purple-500/10 to-purple-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                  <span className={`relative z-10 flex items-center gap-2 ${isActive ? "drop-shadow-[0_0_8px_rgba(255,255,255,0.5)]" : ""}`}>
+                    {link.icon}
+                    <span className="hidden lg:block">{link.label}</span>
+                  </span>
+                </Link>
+              );
+            })}
+          </nav>
+
         </div>
-      </nav>
-
-      <style jsx>{`
-        /* Scrollbar styles */
+      </header>
+      
+      {/* Scrollbar Style Injection */}
+      <style jsx global>{`
         .custom-scrollbar::-webkit-scrollbar {
-          width: 5px;
+          width: 4px;
         }
         .custom-scrollbar::-webkit-scrollbar-track {
           background: rgba(0, 0, 0, 0.2);
         }
         .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.1);
+          background: #4b5563;
           border-radius: 10px;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.2);
+          background: #7c3aed;
         }
       `}</style>
-    </header>
+    </>
   );
 }
