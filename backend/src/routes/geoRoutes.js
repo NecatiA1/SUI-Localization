@@ -7,6 +7,7 @@ import { applyScoreForConfirmedTx } from "../services/scoreService.js";
 import { getSuiAmountFromTxDigest } from "../services/suiService.js";
 import { validateAppCredentials } from "../services/appService.js";
 import { getUserTransactionsFromGeoTxId } from "../services/userTxService.js";
+import { insertFakeGeoTx } from "../services/geoFakeService.js";
 
 const router = express.Router();
 
@@ -230,5 +231,41 @@ router.post("/confirm", async (req, res) => {
     });
   }
 });
+
+
+/**
+ * POST /v1/geo/fake
+ *
+ * Body:
+ *  { "count": 50 }
+ *
+ * count adet fake geo_tx kaydı ekler.
+ */
+router.post("/fake", async (req, res) => {
+  try {
+    const { count } = req.body || {};
+
+    const n = Number(count);
+    if (!n || Number.isNaN(n) || n <= 0) {
+      return res.status(400).json({
+        error: "count must be a positive number",
+      });
+    }
+
+    const result = await insertFakeGeoTx(n);
+
+    return res.status(201).json({
+      inserted: result.inserted,
+      examples: result.rows.slice(0, 5), // ilk birkaç örneği gösterelim
+    });
+  } catch (err) {
+    console.error("POST /v1/geo/fake error:", err);
+    return res.status(500).json({
+      error: "Failed to insert fake geo_tx rows.",
+      debug: err.message,
+    });
+  }
+});
+
 
 export default router;

@@ -17,7 +17,9 @@ const CodeBlock = ({ code, title }) => {
       <div className="absolute -inset-0.5 bg-gradient-to-r from-violet-600 to-cyan-600 rounded-lg blur opacity-0 group-hover:opacity-75 transition duration-300" />
       <div className="relative bg-black/80 backdrop-blur-sm border border-zinc-700 rounded-lg overflow-hidden">
         <div className="flex items-center justify-between px-4 py-2 bg-zinc-900/50 border-b border-zinc-800">
-          <span className="text-xs font-semibold text-violet-400 uppercase tracking-wide">{title}</span>
+          <span className="text-xs font-semibold text-violet-400 uppercase tracking-wide">
+            {title}
+          </span>
           <button
             onClick={handleCopy}
             className="flex items-center gap-2 px-3 py-1 text-xs text-zinc-400 hover:text-violet-300 transition rounded hover:bg-zinc-800/50"
@@ -47,9 +49,10 @@ const StepCard = ({ title, description, code }) => {
   return (
     <div className="relative mb-8 last:mb-0">
       <div className="flex gap-4">
-        {/* Content */}
         <div className="flex-grow">
-          <h4 className="text-base font-semibold text-zinc-100 mb-2">{title}</h4>
+          <h4 className="text-base font-semibold text-zinc-100 mb-2">
+            {title}
+          </h4>
           <p className="text-sm text-zinc-400 mb-4">{description}</p>
           <CodeBlock code={code} title={title} />
         </div>
@@ -81,26 +84,32 @@ export default function Documentation() {
             Localization SDK Docs
           </h2>
           <p className="text-xs text-zinc-500 mt-1">
-            Quick integration guide for sending geo-aware activity
+            Minimal integration: 2 calls, geo-aware Sui activity.
           </p>
         </div>
       </div>
 
       {/* Body */}
       <article className="space-y-6">
-
         {/* --- What is Localization? --- */}
         <div className="rounded-lg border border-zinc-700 bg-zinc-900/30 p-4 backdrop-blur-sm">
-          <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-2">About</h3>
+          <h3 className="text-sm font-semibold text-cyan-400 uppercase tracking-wide mb-2">
+            About
+          </h3>
           <p className="text-sm text-zinc-300 leading-relaxed">
-            Localization lets dapps or communities send city-level usage signals to a shared backend. Each confirmed Sui transaction receives scores and updates city + user activity.
+            Localization lets your Sui dapp send city-level activity to a
+            shared backend. The SDK asks for browser location once, resolves
+            the city, and scores each confirmed transaction based on on-chain
+            SUI amounts.
           </p>
         </div>
 
         {/* --- Install --- */}
         <div>
-          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-3">Installation</h3>
-          <CodeBlock 
+          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-3">
+            Installation
+          </h3>
+          <CodeBlock
             code={`npm install localization-sui-sdk`}
             title="npm"
           />
@@ -108,8 +117,10 @@ export default function Documentation() {
 
         {/* --- Setup Client --- */}
         <div>
-          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-3">Setup Client</h3>
-          <CodeBlock 
+          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-3">
+            Setup Client
+          </h3>
+          <CodeBlock
             code={`import { createLocalizationClient } from "localization-sui-sdk";
 
 export const localizationClient = createLocalizationClient({
@@ -123,26 +134,40 @@ export const localizationClient = createLocalizationClient({
 
         {/* --- Steps --- */}
         <div>
-          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-4">Integration Steps</h3>
+          <h3 className="text-sm font-semibold text-violet-400 uppercase tracking-wide mb-4">
+            Integration Steps
+          </h3>
           <div className="space-y-6">
             <StepCard
-              title="Start Intent"
-              description="Call start() before sending a Sui transaction."
-              code={`const startRes = await localizationClient.start({
-  userAddress: suiAddress,
-  cityName: "Istanbul",
-  countryCode: "TR",
-});`}
+              title="1. Start with location"
+              description="Call startWithLocation before executing your Sui transaction. The SDK will ask for browser location, resolve the closest city and create a geo intent."
+              code={`const startRes = await localizationClient.startWithLocation({
+  userAddress: suiAddress,      // from connected wallet
+  meta: {
+    // optional: anything you want to tag (session id, campaign, etc.)
+    demo: true,
+  },
+});
+
+// startRes.geoTxId -> use this in confirm step`}
             />
-            
+
             <StepCard
-              title="Confirm Transaction"
-              description="After the user signs the Sui tx, confirm it with the hash + amount."
-              code={`const confirmRes = await localizationClient.confirm({
+              title="2. Confirm on-chain transaction"
+              description="After the user signs and executes the Sui transaction, send the tx digest. The backend reads SUI amount from chain and updates city + user stats."
+              code={`// 1) Execute your Sui tx with your preferred wallet / dapp-kit
+const result = await suiWallet.signAndExecuteTransaction({ transaction });
+
+const confirmRes = await localizationClient.confirm({
   geoTxId: startRes.geoTxId,
-  txDigest,
-  amountSui: 10,
-});`}
+  txDigest: result.digest,   // Sui transaction hash
+});
+
+// confirmRes contains:
+//  - status ("CONFIRMED")
+//  - amountSui (read from chain)
+//  - txScore
+//  - confirmedAt`}
             />
           </div>
         </div>
@@ -153,7 +178,9 @@ export const localizationClient = createLocalizationClient({
           <div className="relative bg-amber-950/40 backdrop-blur-sm p-4 rounded-lg border border-amber-800/50">
             <strong className="text-amber-300">⚡ Note:</strong>{" "}
             <span className="text-amber-100 text-sm">
-              The score varies depending on the transaction amount and the region from which the user is sending.
+              You never send city names or amounts manually: location is
+              resolved in the browser, and SUI amounts are fetched directly
+              from the Sui RPC using the provided txDigest.
             </span>
           </div>
         </div>
