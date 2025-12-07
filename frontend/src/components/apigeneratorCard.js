@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { FiKey, FiCopy, FiCheckCircle } from "react-icons/fi";
 
+
 export default function ApiGeneratorCard() {
   const [name, setName] = useState(""); 
   const [domain, setDomain] = useState("");
@@ -13,6 +14,8 @@ export default function ApiGeneratorCard() {
   const [apiData, setApiData] = useState(null);
   const [error, setError] = useState("");
   const [copiedField, setCopiedField] = useState("");
+
+  const API_URL = process.env.NEXT_PUBLIC_LOCALIZATION_API_URL || "http://localhost:4000";
 
   const maskKey = (key) => {
   if (!key) return "";
@@ -39,7 +42,7 @@ export default function ApiGeneratorCard() {
 
     try {
       // 2. Değişiklik: Endpoint'e gönderilen veri yapısı güncellendi
-      const res = await fetch("http://localhost:4000/v1/apps/register", {
+      const res = await fetch(`${API_URL}/v1/apps/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
