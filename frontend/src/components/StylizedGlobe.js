@@ -108,13 +108,13 @@ export default function StylizedCityGlobe() {
   if (!mounted) return null;
 
   return (
-    <div
-      className="w-full h-[calc(100vh-70px)] relative bg-black overflow-hidden font-sans text-white"
-      onMouseMove={(e) => {
-        if (tooltip.visible) {
-          setTooltip((prev) => ({ ...prev, x: e.clientX, y: e.clientY }));
-        }
-      }}
+    <div 
+        className="w-full h-screen relative bg-black overflow-hidden font-sans text-white"
+        onMouseMove={(e) => {
+            if(tooltip.visible) {
+                setTooltip(prev => ({ ...prev, x: e.clientX, y: e.clientY }));
+            }
+        }}
     >
       <Globe
         ref={globeEl}
