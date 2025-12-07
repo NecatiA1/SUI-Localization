@@ -136,7 +136,7 @@ export default function StylizedCityGlobe() {
         pointsData={cities}
         pointColor={() => "#ffffff"}
         pointRadius={0.15} 
-        pointAltitude={0.04}
+        pointAltitude={0.055}
         pointLabel={() => ""}
         onPointClick={handlePointClick}
         onPointHover={handleHover}
