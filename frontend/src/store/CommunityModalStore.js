@@ -62,8 +62,17 @@ const useCommunityModalStore = create((set, get) => ({
         raw: item,
       }));
 
+      // Score'a göre descending sıralama (yüksek score önce)
+      const sorted = normalized.sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score; // score DESC
+        }
+        // Score eşitse tx_count'a göre sırala
+        return b.tx_count - a.tx_count;
+      });
+
       set({
-        communityStats: normalized,
+        communityStats: sorted,
         isCommunityLoading: false,
       });
     } catch (err) {
