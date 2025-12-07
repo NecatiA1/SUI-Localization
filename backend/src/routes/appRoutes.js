@@ -2,6 +2,10 @@
 
 import express from "express";
 import { registerOrGetApp } from "../services/appService.js";
+import {
+  getAllAppsWithStats,
+  getAppCitiesStats,
+} from "../services/appSummaryService.js";
 
 const router = express.Router();
 
@@ -45,6 +49,40 @@ router.post("/register", async (req, res) => {
     return res.status(500).json({
       error: "Dapp kaydı sırasında bir hata oluştu.",
       debug: err.message, // dev ortamında kalabilir
+    });
+  }
+});
+
+router.get("/summary", async (req, res) => {
+  try {
+    const apps = await getAllAppsWithStats();
+    return res.json(apps);
+  } catch (err) {
+    console.error("GET /v1/apps/summary error:", err);
+    return res.status(500).json({
+      error: "Failed to fetch apps summary.",
+      debug: err.message,
+    });
+  }
+});
+
+router.get("/:appId/cities", async (req, res) => {
+  try {
+    const appId = Number(req.params.appId);
+
+    if (!appId || Number.isNaN(appId)) {
+      return res.status(400).json({ error: "Invalid appId." });
+    }
+
+    const cities = await getAppCitiesStats(appId);
+
+    // Hiç kayıt yoksa bile boş array döndürmek frontend için daha rahat
+    return res.json(cities);
+  } catch (err) {
+    console.error("GET /v1/apps/:appId/cities error:", err);
+    return res.status(500).json({
+      error: "Failed to fetch cities for app.",
+      debug: err.message,
     });
   }
 });
