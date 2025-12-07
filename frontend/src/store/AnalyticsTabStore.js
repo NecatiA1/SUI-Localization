@@ -1,11 +1,11 @@
 import { create } from 'zustand';
-
+const API_URL = process.env.NEXT_PUBLIC_LOCALIZATION_API_URL || "http://localhost:4000";
 const useAnalyticsTabStore = create((set) => ({
   cityUsers: [], // Kullanıcı listesi (addresses)
   cityData: null, // Şehirle ilgili genel bilgiler (risk_rate, transactions vb.) istenirse diye
   isLoading: false,
   error: null,
-
+  
   // Şehir ID'sine göre veri çeken fonksiyon
   fetchCitySummary: async (cityId) => {
     if (!cityId) return;
@@ -13,7 +13,7 @@ const useAnalyticsTabStore = create((set) => ({
     set({ isLoading: true, error: null });
     try {
       // Endpoint yapısı: http://localhost:4000/v1/map/cities/:id/summary
-      const response = await fetch(`http://localhost:4000/v1/map/cities/${cityId}/summary`);
+      const response = await fetch(`${API_URL}/v1/map/cities/${cityId}/summary`);
       
       if (!response.ok) {
         throw new Error('Veri çekilirken bir hata oluştu.');
